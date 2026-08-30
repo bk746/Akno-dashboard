@@ -1,17 +1,42 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, UserRound } from "lucide-react";
+import { LogOut, Sparkles, Trash2, UserRound } from "lucide-react";
 import { AppDataTools } from "@/components/layout/app-data-tools";
 import { PageHeader } from "@/components/ui/page-header";
 import { NeuButton } from "@/components/ui/neu-form";
 import { NeuCard } from "@/components/ui/neu-card";
 import { useAuth } from "@/context/auth-context";
+import { clearDemoData, seedDemoData } from "@/lib/demo-seed";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 
 export default function ParametresPage() {
   const { user, signOut } = useAuth();
   const cloud = isSupabaseConfigured();
+
+  function handleLoadDemo() {
+    if (
+      !window.confirm(
+        "Charger les données de démo ? Vos données actuelles seront remplacées.",
+      )
+    ) {
+      return;
+    }
+    seedDemoData({ replace: true });
+    window.location.reload();
+  }
+
+  function handleClearData() {
+    if (
+      !window.confirm(
+        "Effacer toutes les données locales ? Cette action est irréversible.",
+      )
+    ) {
+      return;
+    }
+    clearDemoData();
+    window.location.reload();
+  }
 
   return (
     <>
@@ -48,6 +73,31 @@ export default function ParametresPage() {
             </NeuButton>
           </NeuCard>
         )}
+
+        <NeuCard className="p-6">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-akno-primary-soft text-akno-primary">
+              <Sparkles size={20} />
+            </div>
+            <div>
+              <p className="font-bold text-akno-text">Mode démo</p>
+              <p className="text-sm text-akno-muted">
+                Remplir le dashboard avec des données fictives
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <NeuButton type="button" variant="primary" className="flex-1" onClick={handleLoadDemo}>
+              <Sparkles size={16} />
+              Charger la démo
+            </NeuButton>
+            <NeuButton type="button" variant="secondary" className="flex-1" onClick={handleClearData}>
+              <Trash2 size={16} />
+              Tout effacer
+            </NeuButton>
+          </div>
+        </NeuCard>
 
         <NeuCard className="p-6 lg:col-span-2">
           <div className="mb-4">

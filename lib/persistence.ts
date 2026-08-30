@@ -9,6 +9,7 @@ export const AKNO_STORAGE_KEYS = {
   prospects: "akno-prospects-v2",
   planner: "akno-planner-v2",
   dashboardLayout: "akno-dashboard-layout-v2",
+  projects: "akno-projects-v2",
 } as const;
 
 export type AknoStorageKey = (typeof AKNO_STORAGE_KEYS)[keyof typeof AKNO_STORAGE_KEYS];

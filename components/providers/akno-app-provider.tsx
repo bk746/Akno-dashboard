@@ -1,10 +1,15 @@
 "use client";
 
 import { useEffect } from "react";
+import { isAppDataEmpty, seedDemoData } from "@/lib/demo-seed";
 import { flushAllPendingWrites } from "@/lib/persistence";
 
 export function AknoAppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
+    if (isAppDataEmpty()) {
+      seedDemoData();
+    }
+
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").catch(() => {
         /* offline optionnel */

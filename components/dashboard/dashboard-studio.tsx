@@ -70,18 +70,12 @@ export function DashboardStudio({
             <button
               type="button"
               onClick={onCustomize}
-              className="akno-btn-secondary hidden items-center gap-1.5 px-3 py-2 text-xs sm:flex"
+              className="akno-btn-secondary flex items-center gap-1.5 px-3 py-2 text-xs"
             >
               <LayoutGrid size={14} />
               Personnaliser
             </button>
           )}
-          <div className="flex items-center gap-2 rounded-full border border-akno-border bg-akno-surface py-1 pl-1 pr-3 shadow-sm">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-akno-primary text-[10px] font-bold text-white">
-              K
-            </div>
-            <span className="text-xs font-medium text-akno-muted">AKNO</span>
-          </div>
         </div>
       </header>
 

@@ -1,3 +1,4 @@
+import type { Project } from "@/lib/projects";
 import type { Prospect } from "@/lib/prospects";
 import { getClientDisplayName, type Quote } from "@/lib/quotes";
 
@@ -23,6 +24,25 @@ export function matchesProspectSearch(prospect: Prospect, query: string) {
     prospect.sector,
     prospect.website,
     prospect.notes,
+  ]);
+}
+
+export function matchesProjectSearch(
+  project: Project,
+  query: string,
+  clients?: Map<number, string>,
+) {
+  const normalized = normalizeSearchQuery(query);
+  const clientName = project.clientId ? clients?.get(project.clientId) : undefined;
+
+  return matchesFields(normalized, [
+    project.name,
+    project.code,
+    project.description,
+    project.brief,
+    project.notes,
+    clientName,
+    ...project.team,
   ]);
 }
 

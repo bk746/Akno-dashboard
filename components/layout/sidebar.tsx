@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   CalendarDays,
   FileText,
+  FolderKanban,
   LayoutDashboard,
   Receipt,
   Settings,
@@ -25,6 +26,7 @@ const navItems = [
   { href: "/planning", label: "Planning", icon: CalendarDays },
   { href: "/finances", label: "Finances", icon: Wallet },
   { href: "/clients", label: "Clients", icon: Users },
+  { href: "/projets", label: "Projets", icon: FolderKanban },
   { href: "/prospects", label: "Prospects", icon: UserPlus },
   { href: "/devis", label: "Devis", icon: FileText },
   { href: "/factures", label: "Factures", icon: Receipt },
