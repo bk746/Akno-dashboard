@@ -2,6 +2,7 @@
 
 import { Target, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { ModalOverlay } from "@/components/ui/modal-overlay";
 import { NeuCard } from "@/components/ui/neu-card";
 import {
   NeuButton,
@@ -66,19 +67,6 @@ export function GoalModal({
     setError(null);
   }, [open, editingGoal, defaultPeriod]);
 
-  useEffect(() => {
-    if (!open) return;
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose]);
-
-  if (!open) return null;
-
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
@@ -102,14 +90,8 @@ export function GoalModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center">
-      <button
-        type="button"
-        className="absolute inset-0 bg-neu-text/20 backdrop-blur-[2px]"
-        onClick={onClose}
-        aria-label="Fermer"
-      />
-      <NeuCard className="relative z-10 w-full max-w-md p-6">
+    <ModalOverlay open={open} onClose={onClose} panelClassName="max-w-md">
+      <NeuCard className="p-6">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Target size={18} className="text-neu-accent-2" />
@@ -223,6 +205,6 @@ export function GoalModal({
           </NeuButton>
         </form>
       </NeuCard>
-    </div>
+    </ModalOverlay>
   );
 }

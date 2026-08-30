@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { ModalOverlay } from "@/components/ui/modal-overlay";
 import { NeuCard } from "@/components/ui/neu-card";
 import {
   NeuButton,
@@ -69,19 +70,6 @@ export function AddProspectModal({
     setError(null);
   }, [open]);
 
-  useEffect(() => {
-    if (!open) return;
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose]);
-
-  if (!open) return null;
-
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
     setError(null);
@@ -113,15 +101,8 @@ export function AddProspectModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center">
-      <button
-        type="button"
-        className="absolute inset-0 bg-neu-text/20 backdrop-blur-[2px]"
-        onClick={onClose}
-        aria-label="Fermer"
-      />
-
-      <NeuCard className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto p-5 sm:p-6">
+    <ModalOverlay open={open} onClose={onClose} panelClassName="max-w-lg">
+      <NeuCard className="p-5 sm:p-6">
         <div className="mb-5 flex items-start justify-between gap-3">
           <div>
             <h2 className="text-lg font-bold text-neu-text">Ajouter un prospect</h2>
@@ -326,6 +307,6 @@ export function AddProspectModal({
           </div>
         </form>
       </NeuCard>
-    </div>
+    </ModalOverlay>
   );
 }

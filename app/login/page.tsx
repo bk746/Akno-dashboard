@@ -12,19 +12,25 @@ import { isSupabaseConfigured } from "@/lib/supabase/client";
 
 function formatAuthError(message: string) {
   const lower = message.toLowerCase();
+  if (lower.includes("invalid login credentials")) {
+    return "Mot de passe incorrect pour cet email. Utilisez « Mot de passe oublié ? » ci-dessous, ou réinitialisez-le dans Supabase → Authentication → Users.";
+  }
   if (
     lower.includes("failed to fetch") ||
     lower.includes("networkerror") ||
     lower.includes("load failed")
   ) {
-    return "Impossible de joindre Supabase. Le projet cloud semble supprimé ou l'URL dans .env.local est incorrecte. Créez un projet sur supabase.com, mettez à jour les clés, puis redémarrez npm run dev.";
+    return "Impossible de joindre Supabase. Vérifiez votre connexion et les clés dans .env.local, puis redémarrez npm run dev.";
   }
   return message;
 }
 
+const EMAIL_CONFIRMATION_HELP =
+  "Votre email n'est pas encore confirmé. Ouvrez le mail Supabase et cliquez sur le lien de confirmation, puis reconnectez-vous. En développement, vous pouvez aussi désactiver « Confirm email » dans Supabase → Authentication → Providers → Email.";
+
 export default function LoginPage() {
   const router = useRouter();
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, resetPassword } = useAuth();
   const sync = useDataSyncOptional();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -68,12 +74,20 @@ export default function LoginPage() {
     setInfo(null);
     setPending(true);
 
-    if (inviteCode.trim()) {
+    if (inviteCode.trim() && mode === "signup") {
       sessionStorage.setItem("akno-pending-invite-code", inviteCode.trim().toUpperCase());
     }
 
     if (mode === "signin") {
-      const { error: signInError } = await signIn(email.trim(), password);
+      const { error: signInError, needsEmailConfirmation } = await signIn(
+        email.trim(),
+        password,
+      );
+      if (needsEmailConfirmation) {
+        setPending(false);
+        setInfo(EMAIL_CONFIRMATION_HELP);
+        return;
+      }
       if (signInError) {
         setPending(false);
         setError(formatAuthError(signInError.message));
@@ -95,9 +109,7 @@ export default function LoginPage() {
     }
 
     if (needsEmailConfirmation) {
-      setInfo(
-        "Un email de confirmation t'a été envoyé. Ouvre le lien : tu seras redirigé vers AKNO. Si ça bloque, vérifie dans Supabase → Authentication → URL Configuration → ajoute http://localhost:3000/auth/callback.",
-      );
+      setInfo(EMAIL_CONFIRMATION_HELP);
       return;
     }
 
@@ -113,6 +125,28 @@ export default function LoginPage() {
     }
 
     window.location.href = "/";
+  }
+
+  async function handleForgotPassword() {
+    const trimmed = email.trim();
+    if (!trimmed) {
+      setError("Saisissez votre email pour recevoir un lien de réinitialisation.");
+      return;
+    }
+    setError(null);
+    setInfo(null);
+    setPending(true);
+    const { error: resetError, sent } = await resetPassword(trimmed);
+    setPending(false);
+    if (resetError) {
+      setError(formatAuthError(resetError.message));
+      return;
+    }
+    if (sent) {
+      setInfo(
+        "Email de réinitialisation envoyé. Ouvrez le lien reçu, choisissez un nouveau mot de passe, puis reconnectez-vous ici.",
+      );
+    }
   }
 
   return (
@@ -169,7 +203,20 @@ export default function LoginPage() {
           </NeuFieldGroup>
 
           <NeuFieldGroup>
-            <NeuLabel htmlFor="password">Mot de passe</NeuLabel>
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <NeuLabel htmlFor="password" className="mb-0">
+                Mot de passe
+              </NeuLabel>
+              {mode === "signin" && (
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-[11px] font-semibold text-akno-primary hover:underline"
+                >
+                  Mot de passe oublié ?
+                </button>
+              )}
+            </div>
             <NeuInput
               id="password"
               type="password"

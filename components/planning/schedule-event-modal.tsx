@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { ModalOverlay } from "@/components/ui/modal-overlay";
 import { NeuCard } from "@/components/ui/neu-card";
 import {
   NeuButton,
@@ -80,19 +81,6 @@ export function ScheduleEventModal({
     setError(null);
   }, [open, editingItem, defaultDate, defaultTime]);
 
-  useEffect(() => {
-    if (!open) return;
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose]);
-
-  if (!open) return null;
-
   function applyDuration(minutes: number) {
     setForm((current) => ({
       ...current,
@@ -134,14 +122,8 @@ export function ScheduleEventModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center">
-      <button
-        type="button"
-        className="absolute inset-0 bg-akno-text/20 backdrop-blur-[2px]"
-        onClick={onClose}
-        aria-label="Fermer"
-      />
-      <NeuCard className="relative z-10 w-full max-w-lg p-6">
+    <ModalOverlay open={open} onClose={onClose} panelClassName="max-w-lg">
+      <NeuCard className="p-6">
         <div className="mb-4 flex items-center justify-between">
           <div>
             <p className="font-bold text-neu-text">
@@ -298,6 +280,6 @@ export function ScheduleEventModal({
           </div>
         </form>
       </NeuCard>
-    </div>
+    </ModalOverlay>
   );
 }

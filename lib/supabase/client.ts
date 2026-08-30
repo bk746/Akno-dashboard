@@ -13,7 +13,6 @@ export const supabase: SupabaseClient | null =
           persistSession: true,
           autoRefreshToken: true,
           detectSessionInUrl: true,
-          flowType: "implicit",
         },
       })
     : null;

@@ -3,6 +3,7 @@
 import { Download, Eye, Plus, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { QuoteDocument } from "@/components/devis/quote-document";
+import { ModalOverlay } from "@/components/ui/modal-overlay";
 import { NeuCard } from "@/components/ui/neu-card";
 import {
   NeuButton,
@@ -603,15 +604,12 @@ export function QuoteBuilder({
       </NeuCard>
 
       {/* Modal aperçu */}
-      {showPreview && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center">
-          <button
-            type="button"
-            className="absolute inset-0 bg-neu-text/20 backdrop-blur-[2px]"
-            onClick={() => setShowPreview(false)}
-            aria-label="Fermer"
-          />
-          <NeuCard className="relative z-10 max-h-[92vh] w-full max-w-3xl overflow-y-auto p-6">
+      <ModalOverlay
+        open={showPreview}
+        onClose={() => setShowPreview(false)}
+        panelClassName="max-w-3xl"
+      >
+        <NeuCard className="p-6">
             <div className="mb-4 flex items-center justify-between">
               <p className="font-bold text-neu-text">Aperçu du devis</p>
               <div className="flex gap-2">
@@ -634,10 +632,9 @@ export function QuoteBuilder({
                 </button>
               </div>
             </div>
-            <QuoteDocument quote={previewQuote} />
-          </NeuCard>
-        </div>
-      )}
+          <QuoteDocument quote={previewQuote} />
+        </NeuCard>
+      </ModalOverlay>
 
       <style jsx global>{`
         @media print {

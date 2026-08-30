@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { InvoiceDocument } from "@/components/factures/invoice-document";
 import { DeleteButton } from "@/components/ui/delete-button";
 import { MonthFilter } from "@/components/ui/month-filter";
+import { ModalOverlay } from "@/components/ui/modal-overlay";
 import { NeuCard } from "@/components/ui/neu-card";
 import { NeuButton } from "@/components/ui/neu-form";
 import { PageHeader } from "@/components/ui/page-header";
@@ -353,14 +354,12 @@ export default function FacturesPage() {
       </NeuCard>
 
       {previewInvoice && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center">
-          <button
-            type="button"
-            className="absolute inset-0 bg-neu-text/20 backdrop-blur-[2px]"
-            onClick={() => setPreviewInvoice(null)}
-            aria-label="Fermer"
-          />
-          <NeuCard className="relative z-10 max-h-[90vh] w-full max-w-3xl overflow-y-auto p-6">
+        <ModalOverlay
+          open={Boolean(previewInvoice)}
+          onClose={() => setPreviewInvoice(null)}
+          panelClassName="max-w-3xl"
+        >
+          <NeuCard className="p-6">
             <div className="mb-4 flex items-center justify-between">
               <p className="text-sm font-bold text-neu-text">
                 {previewInvoice.number} — {invoiceKindLabels[previewInvoice.kind]}
@@ -417,21 +416,18 @@ export default function FacturesPage() {
               </NeuButton>
             </div>
           </NeuCard>
-        </div>
+        </ModalOverlay>
       )}
 
-      {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center">
-          <button
-            type="button"
-            className="absolute inset-0 bg-neu-text/20 backdrop-blur-[2px]"
-            onClick={() => {
-              setShowCreateModal(false);
-              setCreateError(null);
-            }}
-            aria-label="Fermer"
-          />
-          <NeuCard className="relative z-10 w-full max-w-md p-6">
+      <ModalOverlay
+        open={showCreateModal}
+        onClose={() => {
+          setShowCreateModal(false);
+          setCreateError(null);
+        }}
+        panelClassName="max-w-md"
+      >
+        <NeuCard className="p-6">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Receipt size={18} className="text-neu-accent-2" />
@@ -530,9 +526,8 @@ export default function FacturesPage() {
                 </NeuButton>
               </div>
             )}
-          </NeuCard>
-        </div>
-      )}
+        </NeuCard>
+      </ModalOverlay>
     </>
   );
 }

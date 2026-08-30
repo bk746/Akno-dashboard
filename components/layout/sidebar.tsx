@@ -18,6 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { BrandMark } from "@/components/layout/brand-mark";
+import { useBodyScrollLock } from "@/lib/use-body-scroll-lock";
 import { appleSpringSnappy } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -73,6 +74,7 @@ export function Sidebar({
   onClose?: () => void;
 }) {
   const pathname = usePathname();
+  useBodyScrollLock(Boolean(open));
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -150,19 +152,11 @@ export function Sidebar({
   );
 }
 
-export function MobileTopBar({ onMenuOpen }: { onMenuOpen: () => void }) {
+export function MobileTopBar() {
   return (
-    <div className="mb-4 flex items-center justify-between border-b border-akno-border pb-4 lg:hidden">
-      <button
-        type="button"
-        onClick={onMenuOpen}
-        className="rounded-lg border border-akno-border p-2 text-akno-text"
-        aria-label="Menu"
-      >
-        <LayoutDashboard size={18} />
-      </button>
-      <p className="text-sm font-bold text-akno-text">AKNO</p>
-      <BrandMark size={32} className="rounded-full" />
+    <div className="mb-4 flex items-center justify-center gap-2.5 border-b border-akno-border pb-4 lg:hidden">
+      <BrandMark size={28} className="rounded-full" />
+      <p className="text-sm font-bold tracking-tight text-akno-text">AKNO</p>
     </div>
   );
 }

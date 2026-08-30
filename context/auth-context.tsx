@@ -4,15 +4,15 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
 
+type AuthResult = { error: Error | null; needsEmailConfirmation?: boolean };
+
 type AuthContextValue = {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (
-    email: string,
-    password: string,
-  ) => Promise<{ error: Error | null; needsEmailConfirmation?: boolean }>;
+  signIn: (email: string, password: string) => Promise<AuthResult>;
+  signUp: (email: string, password: string) => Promise<AuthResult>;
+  resetPassword: (email: string) => Promise<{ error: Error | null; sent?: boolean }>;
   signOut: () => Promise<void>;
 };
 
@@ -74,12 +74,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signIn: async (email, password) => {
         if (!supabase) return { error: new Error("Supabase non configuré") };
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) return { error: new Error(error.message) };
-        if (data.session) {
-          setSession(data.session);
-          setUser(data.session.user);
-          setLoading(false);
+        if (error) {
+          if (error.code === "email_not_confirmed") {
+            return {
+              error: null,
+              needsEmailConfirmation: true,
+            };
+          }
+          return { error: new Error(error.message) };
         }
+        if (!data.session) {
+          return {
+            error: new Error(
+              "Connexion impossible. Vérifiez votre email ou désactivez la confirmation email dans Supabase.",
+            ),
+          };
+        }
+        setSession(data.session);
+        setUser(data.session.user);
+        setLoading(false);
         return { error: null };
       },
       signUp: async (email, password) => {
@@ -106,6 +119,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signOut: async () => {
         if (!supabase) return;
         await supabase.auth.signOut();
+      },
+      resetPassword: async (email) => {
+        if (!supabase) return { error: new Error("Supabase non configuré") };
+        const redirectTo =
+          typeof window !== "undefined"
+            ? `${window.location.origin}/auth/callback`
+            : undefined;
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo,
+        });
+        if (error) return { error: new Error(error.message) };
+        return { error: null, sent: true };
       },
     }),
     [user, session, loading],
