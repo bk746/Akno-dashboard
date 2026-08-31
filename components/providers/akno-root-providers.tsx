@@ -13,7 +13,7 @@ const INTRO_SKIP_PATHS = ["/login", "/auth/callback"];
 export function AknoRootProviders({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isPublicAuth = PUBLIC_AUTH_PATHS.some((path) => pathname.startsWith(path));
-  const skipIntro = INTRO_SKIP_PATHS.some((path) => pathname.startsWith(path));
+  const showIntro = !INTRO_SKIP_PATHS.some((path) => pathname.startsWith(path));
 
   const content = isPublicAuth ? (
     <div className="min-h-dvh bg-akno-bg">{children}</div>
@@ -21,20 +21,14 @@ export function AknoRootProviders({ children }: { children: React.ReactNode }) {
     children
   );
 
-  if (skipIntro) {
-    return (
-      <AuthProvider>
-        <DataSyncProvider>
-          <AknoAppProvider>{content}</AknoAppProvider>
-        </DataSyncProvider>
-      </AuthProvider>
-    );
-  }
-
   return (
-    <IntroProvider>
-      <div className="akno-intro-curtain" aria-hidden="true" />
-      <SiteIntro />
+    <IntroProvider enabled={showIntro}>
+      {showIntro && (
+        <>
+          <div className="akno-intro-curtain" aria-hidden="true" />
+          <SiteIntro />
+        </>
+      )}
       <AuthProvider>
         <DataSyncProvider>
           <AknoAppProvider>

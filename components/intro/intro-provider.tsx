@@ -10,6 +10,8 @@ import {
   type ReactNode,
 } from "react";
 
+const INTRO_FAILSAFE_MS = 4500;
+
 type IntroContextValue = {
   introActive: boolean;
   introComplete: boolean;
@@ -28,9 +30,15 @@ export function useIntro() {
   return useContext(IntroContext);
 }
 
-export function IntroProvider({ children }: { children: ReactNode }) {
+export function IntroProvider({
+  children,
+  enabled = true,
+}: {
+  children: ReactNode;
+  enabled?: boolean;
+}) {
   const [introActive, setIntroActive] = useState(false);
-  const [introComplete, setIntroComplete] = useState(true);
+  const [introComplete, setIntroComplete] = useState(!enabled);
 
   const skipIntro = useCallback(() => {
     document.documentElement.classList.remove("intro-pending");
@@ -47,10 +55,19 @@ export function IntroProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    if (!enabled) {
+      skipIntro();
+      return;
+    }
+
     if (document.documentElement.classList.contains("intro-complete")) {
       skipIntro();
+      return;
     }
-  }, [skipIntro]);
+
+    const failsafeId = window.setTimeout(skipIntro, INTRO_FAILSAFE_MS);
+    return () => window.clearTimeout(failsafeId);
+  }, [enabled, skipIntro]);
 
   const value = useMemo(
     () => ({

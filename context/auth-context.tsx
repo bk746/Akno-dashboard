@@ -36,8 +36,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const timeoutId = window.setTimeout(() => {
-      if (!cancelled) finishLoading(null);
-    }, 6000);
+      if (!cancelled) setLoading(false);
+    }, 12000);
 
     supabase.auth
       .getSession()

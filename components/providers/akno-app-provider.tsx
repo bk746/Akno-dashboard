@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { isAppDataEmpty, seedDemoData } from "@/lib/demo-seed";
 import { flushAllPendingWrites } from "@/lib/persistence";
 
 export function AknoAppProvider({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isAppDataEmpty()) {
       seedDemoData();
+      window.dispatchEvent(new CustomEvent("akno:backup-imported"));
     }
 
     if ("serviceWorker" in navigator) {

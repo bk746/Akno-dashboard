@@ -94,6 +94,11 @@ export function DataSyncProvider({ children }: { children: React.ReactNode }) {
     }
 
     let cancelled = false;
+    setReady(false);
+
+    const timeoutId = window.setTimeout(() => {
+      if (!cancelled) setReady(true);
+    }, 12000);
 
     (async () => {
       try {
@@ -111,12 +116,16 @@ export function DataSyncProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         console.error("[AKNO] Sync init", error);
       } finally {
-        if (!cancelled) setReady(true);
+        if (!cancelled) {
+          window.clearTimeout(timeoutId);
+          setReady(true);
+        }
       }
     })();
 
     return () => {
       cancelled = true;
+      window.clearTimeout(timeoutId);
     };
   }, [user, authLoading, cloudEnabled, loadCloudData]);
 

@@ -278,21 +278,25 @@ body {
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 9998;
   background: #000;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
 }
 
 html:not(.intro-complete) .akno-intro-curtain {
   display: block;
+  pointer-events: auto;
+  opacity: 1;
+}
+
+html.intro-complete .akno-intro-curtain {
+  display: none;
 }
 
 .akno-app-shell {
-  visibility: hidden;
-}
-
-html.intro-complete .akno-app-shell {
-  visibility: visible;
+  min-height: 100dvh;
 }
 
 .section-orb {

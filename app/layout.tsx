@@ -43,16 +43,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <head>
-        <style
-          dangerouslySetInnerHTML={{
-            __html: `
-              html:not(.intro-complete) .akno-app-shell { visibility: hidden; }
-              html:not(.intro-complete) .akno-intro-curtain { display: block; }
-            `,
-          }}
-        />
-      </head>
       <body className="min-h-dvh bg-akno-bg text-akno-text antialiased" suppressHydrationWarning>
         <IntroBoot />
         <AknoRootProviders>{children}</AknoRootProviders>

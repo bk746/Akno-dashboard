@@ -2,7 +2,7 @@
 
 import { LayoutGrid, Plus, Sparkles } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AddDashboardCardModal } from "@/components/dashboard/add-dashboard-card-modal";
 import {
   DashboardDragHint,
@@ -38,6 +38,7 @@ import { loadStoredInvoices } from "@/lib/invoices";
 import { loadPlannerData } from "@/lib/planner";
 import { loadStoredProspects } from "@/lib/prospects";
 import { loadStoredQuotes } from "@/lib/quotes";
+import { useStorageSync } from "@/hooks/use-persistence";
 
 type DashboardView = "studio" | "custom";
 
@@ -56,7 +57,7 @@ export default function DashboardOverview() {
   const [transactions, setTransactions] = useState<ReturnType<typeof loadStoredTransactions>>([]);
   const [reminders, setReminders] = useState(() => loadPlannerData().reminders);
 
-  useEffect(() => {
+  const refreshAllData = useCallback(() => {
     setLayout(loadAndNormalizeDashboardLayout());
     setQuotes(loadStoredQuotes());
     setProspects(loadStoredProspects());
@@ -69,39 +70,29 @@ export default function DashboardOverview() {
   }, []);
 
   useEffect(() => {
-    function refreshData() {
-      setQuotes(loadStoredQuotes());
-      setProspects(loadStoredProspects());
-      setClients(loadStoredClients());
-      setInvoices(loadStoredInvoices());
-      setStoredGoals(loadStoredGoals());
-      setTransactions(loadStoredTransactions());
-      setReminders(loadPlannerData().reminders);
-    }
+    refreshAllData();
+  }, [refreshAllData]);
 
-    refreshData();
-  }, [pathname]);
+  useStorageSync(refreshAllData);
 
   useEffect(() => {
-    function refreshAllData() {
-      setQuotes(loadStoredQuotes());
-      setProspects(loadStoredProspects());
-      setClients(loadStoredClients());
-      setInvoices(loadStoredInvoices());
-      setStoredGoals(loadStoredGoals());
-      setTransactions(loadStoredTransactions());
-      setReminders(loadPlannerData().reminders);
+    refreshAllData();
+  }, [pathname, refreshAllData]);
+
+  useEffect(() => {
+    function handleFocus() {
+      refreshAllData();
     }
 
-    window.addEventListener("focus", refreshAllData);
+    window.addEventListener("focus", handleFocus);
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible") refreshAllData();
     });
 
     return () => {
-      window.removeEventListener("focus", refreshAllData);
+      window.removeEventListener("focus", handleFocus);
     };
-  }, []);
+  }, [refreshAllData]);
 
   useEffect(() => {
     if (!ready || view !== "custom") return;

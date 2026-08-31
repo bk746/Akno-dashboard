@@ -1,8 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { usePathname } from "next/navigation";
-import { pageEnterTransition, pageExitTransition, pageTransition } from "@/lib/motion";
 
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -13,22 +12,14 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
-      <motion.div
-        key={pathname}
-        initial={pageTransition.initial}
-        animate={{
-          ...pageTransition.animate,
-          transition: pageEnterTransition,
-        }}
-        exit={{
-          ...pageTransition.exit,
-          transition: pageExitTransition,
-        }}
-        className="origin-top"
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      key={pathname}
+      initial={{ opacity: 0, y: 4 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+      className="origin-top"
+    >
+      {children}
+    </motion.div>
   );
 }
