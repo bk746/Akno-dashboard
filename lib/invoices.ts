@@ -1,9 +1,10 @@
 import {
-  calculateQuoteTotals,
   companyInfo,
   formatQuoteDate,
   getClientDisplayName,
   getCompanyFullAddress,
+  getQuoteAmounts,
+  getQuoteTitle,
   type Quote,
   type QuoteClient,
 } from "@/lib/quotes";
@@ -43,8 +44,8 @@ export const BALANCE_RATE = 60;
 export const INVOICE_DUE_DAYS = 30;
 
 export const invoiceKindLabels: Record<InvoiceKind, string> = {
-  acompte: "Facture d'acompte (40 %)",
-  solde: "Facture de solde (60 %)",
+  acompte: "Facture d'acompte",
+  solde: "Facture de solde",
 };
 
 export const invoiceStatusLabels: Record<InvoiceStatus, string> = {
@@ -204,10 +205,14 @@ export function createInvoiceFromQuote(
   const check = canCreateInvoiceKind(existing, quote.id, kind);
   if (!check.ok) return null;
 
-  const rate = kind === "acompte" ? DEPOSIT_RATE : BALANCE_RATE;
-  const { subtotalHT, totalTTC } = calculateQuoteTotals(quote.items, quote.tvaRate);
-  const amountHT = Math.round((subtotalHT * rate) / 100 * 100) / 100;
+  const amounts = getQuoteAmounts(quote);
+  const depositRate = amounts.depositPercent;
+  const balanceRate = 100 - depositRate;
+  const rate = kind === "acompte" ? depositRate : balanceRate;
+  const amountHT = Math.round((amounts.netHT * rate) / 100 * 100) / 100;
+  const amountTTC = kind === "acompte" ? amounts.depositAmount : amounts.balanceAmount;
   const today = new Date().toISOString().slice(0, 10);
+  const title = getQuoteTitle(quote);
 
   const invoice: Invoice = {
     id: existing.reduce((max, item) => Math.max(max, item.id), 0) + 1,
@@ -221,8 +226,8 @@ export function createInvoiceFromQuote(
         id: `inv-${Date.now()}`,
         description:
           kind === "acompte"
-            ? `Acompte ${DEPOSIT_RATE} % — Devis ${quote.number}`
-            : `Solde ${BALANCE_RATE} % — Devis ${quote.number}`,
+            ? `Acompte ${depositRate} % — ${title} (devis ${quote.number})`
+            : `Solde ${balanceRate} % — ${title} (devis ${quote.number})`,
         quantity: 1,
         unitPrice: amountHT,
       },
@@ -233,9 +238,9 @@ export function createInvoiceFromQuote(
     dueDate: addDaysToDate(today, INVOICE_DUE_DAYS),
     object:
       kind === "acompte"
-        ? `${quote.object} — acompte à la commande`
-        : `${quote.object} — solde à la livraison`,
-    amount: Math.round((totalTTC * rate) / 100 * 100) / 100,
+        ? `${title} — acompte à la commande`
+        : `${title} — solde à la livraison`,
+    amount: amountTTC,
   };
 
   return invoice;

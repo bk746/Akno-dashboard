@@ -1,11 +1,11 @@
 "use client";
 
-import { Eye, Plus, Receipt, X } from "lucide-react";
+import { Copy, Eye, Pencil, Plus, Receipt, X } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { QuotePdfPanel } from "@/components/devis/quote-pdf-panel";
 import { DeleteButton } from "@/components/ui/delete-button";
-import { useStorageSync } from "@/hooks/use-persistence";
+import { useStoredList } from "@/hooks/use-persistence";
 import { MonthFilter } from "@/components/ui/month-filter";
 import { PageHeader } from "@/components/ui/page-header";
 import { SearchInput } from "@/components/ui/search-input";
@@ -25,43 +25,37 @@ import {
   saveStoredClients,
 } from "@/lib/clients";
 import {
+  duplicateQuote,
   getClientDisplayName,
+  getQuoteTitle,
   loadStoredQuotes,
+  QUOTES_STORAGE_KEY,
   quoteStatusLabels,
   quoteStatusStyles,
   saveStoredQuotes,
+  setQuoteStatus,
   type Quote,
+  type QuoteStatus,
 } from "@/lib/quotes";
 import {
   getSiteStatus,
+  INVOICES_STORAGE_KEY,
   loadStoredInvoices,
   removeInvoicesForQuote,
   saveStoredInvoices,
   siteStatusLabels,
   siteStatusStyles,
+  type Invoice,
 } from "@/lib/invoices";
 import { matchesQuoteSearch } from "@/lib/search";
 import { cn } from "@/lib/utils";
 
 export default function DevisPage() {
-  const [quotes, setQuotes] = useState<Quote[]>([]);
+  const quotes = useStoredList<Quote>(QUOTES_STORAGE_KEY, loadStoredQuotes);
+  const invoices = useStoredList<Invoice>(INVOICES_STORAGE_KEY, loadStoredInvoices);
   const [previewQuote, setPreviewQuote] = useState<Quote | null>(null);
-  const [invoices, setInvoices] = useState(() =>
-    typeof window === "undefined" ? [] : loadStoredInvoices(),
-  );
   const [monthFilter, setMonthFilter] = useState(getCurrentMonthKey);
   const [search, setSearch] = useState("");
-
-  const refreshQuotes = useCallback(() => {
-    setQuotes(loadStoredQuotes());
-    setInvoices(loadStoredInvoices());
-  }, []);
-
-  useEffect(() => {
-    refreshQuotes();
-  }, [refreshQuotes]);
-
-  useStorageSync(refreshQuotes);
 
   const monthOptions = useMemo(
     () => buildMonthOptions(quotes.map((quote) => quote.date)),
@@ -80,40 +74,43 @@ export default function DevisPage() {
   const total = filteredQuotes.reduce((sum, quote) => sum + quote.amount, 0);
   const accepted = filteredQuotes.filter((quote) => quote.status === "accepte").length;
 
-  function markAsAccepted() {
+  function changeStatus(status: QuoteStatus) {
     if (!previewQuote) return;
 
-    const acceptedQuote = { ...previewQuote, status: "accepte" as const };
-    setQuotes((current) => {
-      const next = current.map((quote) =>
-        quote.id === previewQuote.id ? acceptedQuote : quote,
-      );
-      saveStoredQuotes(next, { immediate: true });
-      return next;
-    });
-    setPreviewQuote(acceptedQuote);
+    const updated = setQuoteStatus(previewQuote, status);
+    saveStoredQuotes(
+      quotes.map((quote) => (quote.id === previewQuote.id ? updated : quote)),
+      { immediate: true },
+    );
+    setPreviewQuote(updated);
 
     if (
-      acceptedQuote.subscription?.enabled &&
-      acceptedQuote.subscription.monthlyPriceHT > 0
+      status === "accepte" &&
+      updated.subscription?.enabled &&
+      updated.subscription.monthlyPriceHT > 0
     ) {
       const clients = loadStoredClients();
-      saveStoredClients(applyQuoteSubscriptionToClient(clients, acceptedQuote));
+      saveStoredClients(applyQuoteSubscriptionToClient(clients, updated));
     }
+  }
+
+  function duplicate(source: Quote) {
+    const copy = duplicateQuote(quotes, source);
+    saveStoredQuotes([copy, ...quotes], { immediate: true });
+    setPreviewQuote(null);
+    setSearch("");
+    setMonthFilter(getCurrentMonthKey());
   }
 
   function deleteQuote(id: number) {
     const quote = quotes.find((item) => item.id === id);
     if (!quote) return;
 
-    setQuotes((current) => {
-      const next = current.filter((item) => item.id !== id);
-      saveStoredQuotes(next, { immediate: true });
-      return next;
-    });
-    const nextInvoices = removeInvoicesForQuote(invoices, id);
-    setInvoices(nextInvoices);
-    saveStoredInvoices(nextInvoices);
+    saveStoredQuotes(
+      quotes.filter((item) => item.id !== id),
+      { immediate: true },
+    );
+    saveStoredInvoices(removeInvoicesForQuote(invoices, id));
 
     if (previewQuote?.id === id) {
       setPreviewQuote(null);
@@ -221,8 +218,11 @@ export default function DevisPage() {
                   <td className="py-4 pr-4 font-mono text-xs font-semibold text-neu-accent-2">
                     {quote.number}
                   </td>
-                  <td className="py-4 pr-4 font-medium text-neu-text">
-                    {getClientDisplayName(quote)}
+                  <td className="py-4 pr-4">
+                    <p className="font-medium text-neu-text">{getClientDisplayName(quote)}</p>
+                    <p className="mt-0.5 max-w-[260px] truncate text-xs text-neu-muted">
+                      {getQuoteTitle(quote)}
+                    </p>
                   </td>
                   <td className="py-4 pr-4 text-neu-muted">{quote.date}</td>
                   <td className="py-4 pr-4 text-neu-muted">{quote.validUntil}</td>
@@ -263,6 +263,23 @@ export default function DevisPage() {
                         <Eye size={14} />
                         Voir
                       </button>
+                      <Link
+                        href={`/devis/${quote.id}/modifier`}
+                        className="neu-flat inline-flex h-8 w-8 items-center justify-center rounded-lg text-neu-muted hover:text-neu-accent-2"
+                        title="Modifier"
+                        aria-label={`Modifier le devis ${quote.number}`}
+                      >
+                        <Pencil size={14} />
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => duplicate(quote)}
+                        className="neu-flat inline-flex h-8 w-8 items-center justify-center rounded-lg text-neu-muted hover:text-neu-accent-2"
+                        title="Dupliquer"
+                        aria-label={`Dupliquer le devis ${quote.number}`}
+                      >
+                        <Copy size={14} />
+                      </button>
                       <DeleteButton
                         label={`le devis ${quote.number}`}
                         onConfirm={() => deleteQuote(quote.id)}
@@ -302,8 +319,35 @@ export default function DevisPage() {
                     label={`le devis ${previewQuote.number}`}
                     onConfirm={() => deleteQuote(previewQuote.id)}
                   />
+                  <Link
+                    href={`/devis/${previewQuote.id}/modifier`}
+                    className="neu-flat inline-flex h-10 w-10 items-center justify-center rounded-xl text-neu-muted hover:text-neu-accent-2"
+                    title="Modifier"
+                    aria-label="Modifier"
+                  >
+                    <Pencil size={16} />
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => duplicate(previewQuote)}
+                    className="neu-flat inline-flex h-10 w-10 items-center justify-center rounded-xl text-neu-muted hover:text-neu-accent-2"
+                    title="Dupliquer"
+                    aria-label="Dupliquer"
+                  >
+                    <Copy size={16} />
+                  </button>
+                  {previewQuote.status === "brouillon" && (
+                    <NeuButton variant="secondary" onClick={() => changeStatus("envoye")}>
+                      Marquer envoyé
+                    </NeuButton>
+                  )}
+                  {previewQuote.status !== "accepte" && previewQuote.status !== "refuse" && (
+                    <NeuButton variant="secondary" onClick={() => changeStatus("refuse")}>
+                      Refusé
+                    </NeuButton>
+                  )}
                   {previewQuote.status !== "accepte" && (
-                    <NeuButton variant="secondary" onClick={markAsAccepted}>
+                    <NeuButton variant="primary" onClick={() => changeStatus("accepte")}>
                       Marquer accepté
                     </NeuButton>
                   )}
