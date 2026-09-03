@@ -2,6 +2,7 @@
 
 import type { ComponentProps } from "react";
 import { QuoteDocument } from "@/components/devis/quote-document";
+import { QuotePdfStyles } from "@/components/devis/quote-pdf-styles";
 import { PdfDownloadButton } from "@/components/ui/pdf-download-button";
 import { downloadQuotePdf } from "@/lib/download-quote-pdf";
 
@@ -14,6 +15,7 @@ type QuotePdfPanelProps = {
 export function QuotePdfPanel({ quote, title, actions }: QuotePdfPanelProps) {
   return (
     <div className="space-y-4">
+      <QuotePdfStyles />
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-sm font-bold text-neu-text">
