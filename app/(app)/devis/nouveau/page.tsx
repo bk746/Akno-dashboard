@@ -2,10 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { useEffect, useState } from "react";
 import { QuoteBuilder } from "@/components/devis/quote-builder";
 import { PageHeader } from "@/components/ui/page-header";
 import { NeuLinkButton } from "@/components/ui/neu-form";
+import { flushAllPendingWrites } from "@/lib/persistence";
 import {
   loadStoredQuotes,
   saveStoredQuotes,
@@ -14,16 +14,12 @@ import {
 
 export default function NouveauDevisPage() {
   const router = useRouter();
-  const [quotes, setQuotes] = useState<Quote[]>([]);
-
-  useEffect(() => {
-    setQuotes(loadStoredQuotes());
-  }, []);
 
   function handleSave(quote: Quote) {
     const existing = loadStoredQuotes();
     const next = [quote, ...existing];
-    saveStoredQuotes(next);
+    saveStoredQuotes(next, { immediate: true });
+    flushAllPendingWrites();
     router.push("/devis");
   }
 
@@ -41,7 +37,7 @@ export default function NouveauDevisPage() {
       />
 
       <QuoteBuilder
-        existingQuotes={quotes}
+        existingQuotes={loadStoredQuotes()}
         onSave={handleSave}
         onCancel={() => router.push("/devis")}
       />

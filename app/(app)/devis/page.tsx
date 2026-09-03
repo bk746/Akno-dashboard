@@ -2,9 +2,10 @@
 
 import { Eye, Plus, Receipt, X } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { QuotePdfPanel } from "@/components/devis/quote-pdf-panel";
 import { DeleteButton } from "@/components/ui/delete-button";
+import { useStorageSync } from "@/hooks/use-persistence";
 import { MonthFilter } from "@/components/ui/month-filter";
 import { PageHeader } from "@/components/ui/page-header";
 import { SearchInput } from "@/components/ui/search-input";
@@ -44,7 +45,6 @@ import { cn } from "@/lib/utils";
 
 export default function DevisPage() {
   const [quotes, setQuotes] = useState<Quote[]>([]);
-  const [ready, setReady] = useState(false);
   const [previewQuote, setPreviewQuote] = useState<Quote | null>(null);
   const [invoices, setInvoices] = useState(() =>
     typeof window === "undefined" ? [] : loadStoredInvoices(),
@@ -52,16 +52,16 @@ export default function DevisPage() {
   const [monthFilter, setMonthFilter] = useState(getCurrentMonthKey);
   const [search, setSearch] = useState("");
 
-  useEffect(() => {
+  const refreshQuotes = useCallback(() => {
     setQuotes(loadStoredQuotes());
     setInvoices(loadStoredInvoices());
-    setReady(true);
   }, []);
 
   useEffect(() => {
-    if (!ready) return;
-    saveStoredQuotes(quotes);
-  }, [quotes, ready]);
+    refreshQuotes();
+  }, [refreshQuotes]);
+
+  useStorageSync(refreshQuotes);
 
   const monthOptions = useMemo(
     () => buildMonthOptions(quotes.map((quote) => quote.date)),
@@ -84,11 +84,13 @@ export default function DevisPage() {
     if (!previewQuote) return;
 
     const acceptedQuote = { ...previewQuote, status: "accepte" as const };
-    setQuotes((current) =>
-      current.map((quote) =>
+    setQuotes((current) => {
+      const next = current.map((quote) =>
         quote.id === previewQuote.id ? acceptedQuote : quote,
-      ),
-    );
+      );
+      saveStoredQuotes(next, { immediate: true });
+      return next;
+    });
     setPreviewQuote(acceptedQuote);
 
     if (
@@ -104,7 +106,11 @@ export default function DevisPage() {
     const quote = quotes.find((item) => item.id === id);
     if (!quote) return;
 
-    setQuotes((current) => current.filter((item) => item.id !== id));
+    setQuotes((current) => {
+      const next = current.filter((item) => item.id !== id);
+      saveStoredQuotes(next, { immediate: true });
+      return next;
+    });
     const nextInvoices = removeInvoicesForQuote(invoices, id);
     setInvoices(nextInvoices);
     saveStoredInvoices(nextInvoices);

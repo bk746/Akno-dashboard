@@ -388,8 +388,8 @@ export function loadStoredQuotes(): Quote[] {
   return parsed.map(normalizeStoredQuote);
 }
 
-export function saveStoredQuotes(quotes: Quote[]) {
-  writeStorage(QUOTES_STORAGE_KEY, quotes);
+export function saveStoredQuotes(quotes: Quote[], options?: { immediate?: boolean }) {
+  writeStorage(QUOTES_STORAGE_KEY, quotes, { immediate: options?.immediate });
 }
 
 export function getClientDisplayName(quote: Quote) {
