@@ -35,7 +35,9 @@ export function QuotePdfPanel({ quote, title, actions }: QuotePdfPanelProps) {
 
       <div className="akno-pdf-preview-frame overflow-hidden rounded-2xl border border-akno-border bg-white shadow-[0_8px_30px_rgba(10,37,64,0.06)]">
         <div className="max-h-[min(72vh,900px)] overflow-y-auto overscroll-contain bg-[#f8fafc] p-3 sm:p-5">
-          <QuoteDocument quote={quote} />
+          <div style={{ padding: "36px 40px" }}>
+            <QuoteDocument quote={quote} />
+          </div>
         </div>
       </div>
     </div>

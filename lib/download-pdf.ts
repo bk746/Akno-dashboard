@@ -51,6 +51,11 @@ function mountInIsolatedIframe(content: HTMLElement) {
   doc.close();
 
   content.id = "quote-document-export";
+  content.style.width = "714px";
+  content.style.maxWidth = "714px";
+  content.style.padding = "36px 40px";
+  content.style.background = "#ffffff";
+
   doc.body.appendChild(content);
 
   return iframe;
