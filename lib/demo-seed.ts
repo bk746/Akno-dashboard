@@ -10,7 +10,8 @@ import type { Goal } from "@/lib/goals";
 import { saveStoredGoals } from "@/lib/goals";
 import type { Invoice } from "@/lib/invoices";
 import { saveStoredInvoices } from "@/lib/invoices";
-import { AKNO_STORAGE_KEYS, readStorage } from "@/lib/persistence";
+import { AKNO_STORAGE_KEYS, flushAllPendingWrites, readStorage, type AknoStorageKey } from "@/lib/persistence";
+import { hasBucketWriter, writeBucket } from "@/lib/sync-bridge";
 import type { PlannerData } from "@/lib/planner";
 import { savePlannerData } from "@/lib/planner";
 import type { Project } from "@/lib/projects";
@@ -752,12 +753,40 @@ export function seedDemoData(options?: { replace?: boolean }) {
   return true;
 }
 
-export function clearDemoData() {
+export async function clearAllAppData() {
   if (typeof window === "undefined") return;
+
+  flushAllPendingWrites();
+
+  const emptyValues: Record<AknoStorageKey, unknown> = {
+    [AKNO_STORAGE_KEYS.clients]: [],
+    [AKNO_STORAGE_KEYS.quotes]: [],
+    [AKNO_STORAGE_KEYS.invoices]: [],
+    [AKNO_STORAGE_KEYS.finances]: [],
+    [AKNO_STORAGE_KEYS.goals]: [],
+    [AKNO_STORAGE_KEYS.prospects]: [],
+    [AKNO_STORAGE_KEYS.projects]: [],
+    [AKNO_STORAGE_KEYS.planner]: { reminders: [], schedule: [] },
+    [AKNO_STORAGE_KEYS.dashboardLayout]: [],
+  };
 
   for (const key of Object.values(AKNO_STORAGE_KEYS)) {
     localStorage.removeItem(key);
   }
 
+  for (const [key, value] of Object.entries(emptyValues) as [AknoStorageKey, unknown][]) {
+    const json = JSON.stringify(value);
+    localStorage.setItem(key, json);
+
+    if (hasBucketWriter()) {
+      await writeBucket(key, json);
+    }
+  }
+
   window.dispatchEvent(new CustomEvent("akno:backup-imported"));
+}
+
+/** @deprecated Utiliser clearAllAppData */
+export function clearDemoData() {
+  void clearAllAppData();
 }

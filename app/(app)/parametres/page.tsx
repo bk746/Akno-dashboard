@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { NeuButton } from "@/components/ui/neu-form";
 import { NeuCard } from "@/components/ui/neu-card";
 import { useAuth } from "@/context/auth-context";
-import { clearDemoData, seedDemoData } from "@/lib/demo-seed";
+import { clearAllAppData, seedDemoData } from "@/lib/demo-seed";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 
 export default function ParametresPage() {
@@ -26,15 +26,15 @@ export default function ParametresPage() {
     window.location.reload();
   }
 
-  function handleClearData() {
+  async function handleClearData() {
     if (
       !window.confirm(
-        "Effacer toutes les données locales ? Cette action est irréversible.",
+        "Effacer toutes les données (clients, devis, factures…) ? Cette action est irréversible.",
       )
     ) {
       return;
     }
-    clearDemoData();
+    await clearAllAppData();
     window.location.reload();
   }
 
@@ -82,7 +82,7 @@ export default function ParametresPage() {
             <div>
               <p className="font-bold text-akno-text">Mode démo</p>
               <p className="text-sm text-akno-muted">
-                Remplir le dashboard avec des données fictives
+                Optionnel — pour tester l&apos;app avec des exemples
               </p>
             </div>
           </div>
