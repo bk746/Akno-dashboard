@@ -259,10 +259,11 @@ html, body { margin: 0; padding: 0; background: #ffffff; }
 }
 
 .akno-pdf-recap-box {
-  background: #0a2540;
+  background: #f6f9fc;
+  border: 2px solid #0a2540;
   border-radius: 10px;
   padding: 14px 16px;
-  color: #ffffff;
+  color: #0a2540;
 }
 
 .akno-pdf-pay-table {
@@ -302,19 +303,21 @@ html, body { margin: 0; padding: 0; background: #ffffff; }
 .akno-pdf-recap-table td {
   padding: 0 0 7px;
   vertical-align: top;
-  color: rgba(255,255,255,0.8);
+  color: #425466;
 }
 
 .akno-pdf-recap-table td:last-child {
   text-align: right;
   white-space: nowrap;
   padding-left: 8px;
+  font-weight: 600;
+  color: #0a2540;
 }
 
-.akno-pdf-recap-tva { font-size: 9px; line-height: 1.35; max-width: 130px; }
+.akno-pdf-recap-tva { font-size: 9px; line-height: 1.35; text-align: right; max-width: 130px; color: #697386; }
 
 .akno-pdf-recap-divider {
-  border-top: 1px solid rgba(255,255,255,0.2);
+  border-top: 1px solid #d8dee6;
   margin-top: 4px;
   padding-top: 10px;
 }
@@ -323,7 +326,7 @@ html, body { margin: 0; padding: 0; background: #ffffff; }
   font-size: 9.5px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: rgba(255,255,255,0.55);
+  color: #697386;
   margin: 0;
 }
 
@@ -332,7 +335,7 @@ html, body { margin: 0; padding: 0; background: #ffffff; }
   font-weight: 700;
   line-height: 1.1;
   margin: 4px 0 0;
-  color: #fff;
+  color: #635bff;
 }
 
 /* Blocs conditions — empilés, jamais dans une fausse table */
@@ -374,18 +377,22 @@ html, body { margin: 0; padding: 0; background: #ffffff; }
 
 .akno-pdf-legal-table td:nth-child(2) { padding: 0 0 14px 16px; }
 
-/* Signature */
+/* Signature — toujours sur fond blanc, nouvelle page si besoin */
 .akno-pdf-signature {
   border: 2px solid #d8dee6;
   border-radius: 10px;
   padding: 18px;
   margin-top: 24px;
+  background: #ffffff;
+  page-break-before: always;
+  break-before: page;
 }
 
 .akno-pdf-signature-line {
   border-bottom: 1px solid #9aa5b5;
   height: 26px;
   margin-top: 6px;
+  background: #ffffff;
 }
 
 .akno-pdf-signature-box {
@@ -393,6 +400,7 @@ html, body { margin: 0; padding: 0; background: #ffffff; }
   border-radius: 8px;
   height: 72px;
   margin-top: 6px;
+  background: #ffffff;
 }
 
 /* Footer */
@@ -411,6 +419,11 @@ html, body { margin: 0; padding: 0; background: #ffffff; }
 
 .pdf-avoid-break,
 .akno-pdf-block {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.akno-pdf-no-break {
   break-inside: avoid;
   page-break-inside: avoid;
 }

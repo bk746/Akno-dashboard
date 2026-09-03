@@ -335,12 +335,12 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
               <td className="akno-pdf-gap-col-lg" />
               <td style={{ width: "42%" }}>
                 <div className="akno-pdf-recap-box">
-                  <p className="akno-pdf-label" style={{ color: "rgba(255,255,255,0.55)" }}>Récapitulatif</p>
+                  <p className="akno-pdf-label">Récapitulatif</p>
                   <table className="akno-pdf-recap-table">
                     <tbody>
                       <tr><td>Sous-total</td><td>{formatMoney(amounts.subtotalHT)}</td></tr>
                       {amounts.discountAmount > 0 && (
-                        <tr><td style={{ color: "#86efac" }}>Remise</td><td style={{ color: "#86efac" }}>− {formatMoney(amounts.discountAmount)}</td></tr>
+                        <tr><td style={{ color: "#09825d" }}>Remise</td><td style={{ color: "#09825d" }}>− {formatMoney(amounts.discountAmount)}</td></tr>
                       )}
                       {isTvaExempt ? (
                         <tr>
@@ -428,8 +428,8 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
           </table>
         </div>
 
-        {/* Bon pour accord */}
-        <div className="akno-pdf-signature akno-pdf-block pdf-avoid-break">
+        {/* Bon pour accord — page dédiée, fond blanc */}
+        <div className="akno-pdf-signature akno-pdf-no-break">
           <table className="akno-pdf-layout-table" style={{ marginBottom: 16 }}>
             <tbody>
               <tr>

@@ -94,6 +94,7 @@ export async function downloadDocumentPdf(
   cleanupPdfArtifacts();
 
   const clone = source.cloneNode(true) as HTMLElement;
+  clone.querySelector(".akno-pdf-watermark")?.remove();
   let iframe: HTMLIFrameElement | null = null;
 
   try {
@@ -125,7 +126,8 @@ export async function downloadDocumentPdf(
       },
       pagebreak: {
         mode: ["css", "legacy"],
-        avoid: [".pdf-avoid-break", ".akno-pdf-block"],
+        before: [".akno-pdf-signature"],
+        avoid: [".akno-pdf-no-break", ".akno-pdf-signature"],
       },
     };
 
