@@ -33,16 +33,32 @@ export function InvoiceDocument({ invoice, className }: InvoiceDocumentProps) {
       <div className="mb-8 flex flex-col justify-between gap-6 border-b border-neu-text/10 pb-6 sm:flex-row sm:items-start">
         <div className="max-w-md">
           <p className="text-2xl font-bold tracking-tight">{companyInfo.name}</p>
-          <p className="mt-0.5 text-sm font-medium text-neu-muted">
+          <p className="mt-0.5 text-sm font-medium text-neu-text">
             {companyInfo.legalName}
           </p>
-          <p className="mt-1 text-sm text-neu-muted">{companyInfo.tagline}</p>
+          <p className="mt-0.5 text-sm text-neu-muted">{companyInfo.legalForm}</p>
+          {companyInfo.tagline && (
+            <p className="mt-1 text-sm text-neu-muted">{companyInfo.tagline}</p>
+          )}
           <div className="mt-4 space-y-0.5 text-[11px] leading-relaxed text-neu-muted">
-            <p>{getCompanyFullAddress()}</p>
+            {getCompanyFullAddress() !== "À compléter" && (
+              <p>{getCompanyFullAddress()}</p>
+            )}
             <p>SIRET : {companyInfo.siret}</p>
-            <p>{companyInfo.rcs}</p>
-            <p>N° TVA intracommunautaire : {companyInfo.tvaNumber}</p>
-            <p>{companyInfo.email} · {companyInfo.phone}</p>
+            <p>SIREN : {companyInfo.siren}</p>
+            <p>Code APE : {companyInfo.ape}</p>
+            {companyInfo.vatExempt && (
+              <p className="font-medium text-neu-text">{invoiceLegalMentions.tvaExempt}</p>
+            )}
+            {companyInfo.tvaNumber && (
+              <p>N° TVA intracommunautaire : {companyInfo.tvaNumber}</p>
+            )}
+            {companyInfo.rcs && <p>{companyInfo.rcs}</p>}
+            {(companyInfo.email || companyInfo.phone) && (
+              <p>
+                {[companyInfo.email, companyInfo.phone].filter(Boolean).join(" · ")}
+              </p>
+            )}
           </div>
         </div>
 
@@ -71,7 +87,11 @@ export function InvoiceDocument({ invoice, className }: InvoiceDocumentProps) {
             Prestataire
           </p>
           <p className="mt-2 text-sm font-semibold">{companyInfo.legalName}</p>
-          <p className="text-xs text-neu-muted">{getCompanyFullAddress()}</p>
+          <p className="text-xs text-neu-muted">{companyInfo.legalForm}</p>
+          {getCompanyFullAddress() !== "À compléter" && (
+            <p className="text-xs text-neu-muted">{getCompanyFullAddress()}</p>
+          )}
+          <p className="mt-1 text-xs text-neu-muted">SIRET : {companyInfo.siret}</p>
         </div>
 
         <div className="rounded-2xl border border-neu-text/8 bg-neu-text/[0.02] p-4">
@@ -106,8 +126,12 @@ export function InvoiceDocument({ invoice, className }: InvoiceDocumentProps) {
             <tr>
               <th className="px-4 py-3 font-semibold">Désignation</th>
               <th className="px-4 py-3 font-semibold text-center">Qté</th>
-              <th className="px-4 py-3 font-semibold text-right">P.U. HT</th>
-              <th className="px-4 py-3 font-semibold text-right">Total HT</th>
+              <th className="px-4 py-3 font-semibold text-right">
+                {isTvaExempt ? "P.U." : "P.U. HT"}
+              </th>
+              <th className="px-4 py-3 font-semibold text-right">
+                {isTvaExempt ? "Total" : "Total HT"}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -130,7 +154,7 @@ export function InvoiceDocument({ invoice, className }: InvoiceDocumentProps) {
       <div className="mt-6 flex justify-end">
         <div className="w-full max-w-sm space-y-2 text-sm">
           <div className="flex justify-between text-neu-muted">
-            <span>Total HT</span>
+            <span>{isTvaExempt ? "Total" : "Total HT"}</span>
             <span>{formatMoney(subtotalHT)}</span>
           </div>
           {isTvaExempt ? (

@@ -80,18 +80,33 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
       <div className="mb-8 flex flex-col justify-between gap-6 border-b border-neu-text/10 pb-6 sm:flex-row sm:items-start">
         <div className="max-w-md">
           <p className="text-2xl font-bold tracking-tight">{companyInfo.name}</p>
-          <p className="mt-0.5 text-sm font-medium text-neu-muted">
+          <p className="mt-0.5 text-sm font-medium text-neu-text">
             {companyInfo.legalName}
           </p>
-          <p className="mt-1 text-sm text-neu-muted">{companyInfo.tagline}</p>
+          <p className="mt-0.5 text-sm text-neu-muted">{companyInfo.legalForm}</p>
+          {companyInfo.tagline && (
+            <p className="mt-1 text-sm text-neu-muted">{companyInfo.tagline}</p>
+          )}
           <div className="mt-4 space-y-0.5 text-[11px] leading-relaxed text-neu-muted">
-            <p>{getCompanyFullAddress()}</p>
+            {getCompanyFullAddress() !== "À compléter" && (
+              <p>{getCompanyFullAddress()}</p>
+            )}
             <p>SIRET : {companyInfo.siret}</p>
-            <p>{companyInfo.rcs}</p>
-            <p>N° TVA intracommunautaire : {companyInfo.tvaNumber}</p>
+            <p>SIREN : {companyInfo.siren}</p>
             <p>Code APE : {companyInfo.ape}</p>
-            <p>{companyInfo.email} · {companyInfo.phone}</p>
-            <p>{companyInfo.website}</p>
+            {companyInfo.vatExempt && (
+              <p className="font-medium text-neu-text">{legalMentions.tvaExempt}</p>
+            )}
+            {companyInfo.tvaNumber && (
+              <p>N° TVA intracommunautaire : {companyInfo.tvaNumber}</p>
+            )}
+            {companyInfo.rcs && <p>{companyInfo.rcs}</p>}
+            {(companyInfo.email || companyInfo.phone) && (
+              <p>
+                {[companyInfo.email, companyInfo.phone].filter(Boolean).join(" · ")}
+              </p>
+            )}
+            {companyInfo.website && <p>{companyInfo.website}</p>}
           </div>
         </div>
 
@@ -118,8 +133,12 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
             Prestataire
           </p>
           <p className="mt-2 text-sm font-semibold">{companyInfo.legalName}</p>
-          <p className="text-xs text-neu-muted">{getCompanyFullAddress()}</p>
+          <p className="text-xs text-neu-muted">{companyInfo.legalForm}</p>
+          {getCompanyFullAddress() !== "À compléter" && (
+            <p className="text-xs text-neu-muted">{getCompanyFullAddress()}</p>
+          )}
           <p className="mt-1 text-xs text-neu-muted">SIRET : {companyInfo.siret}</p>
+          <p className="text-xs text-neu-muted">SIREN : {companyInfo.siren}</p>
         </div>
 
         <div className="rounded-2xl border border-neu-text/8 bg-neu-text/[0.02] p-4">
@@ -164,8 +183,12 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
             <tr>
               <th className="px-4 py-3 font-semibold">Désignation des prestations</th>
               <th className="px-4 py-3 font-semibold text-center">Qté</th>
-              <th className="px-4 py-3 font-semibold text-right">P.U. HT</th>
-              <th className="px-4 py-3 font-semibold text-right">Total HT</th>
+              <th className="px-4 py-3 font-semibold text-right">
+                {isTvaExempt ? "P.U." : "P.U. HT"}
+              </th>
+              <th className="px-4 py-3 font-semibold text-right">
+                {isTvaExempt ? "Total" : "Total HT"}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -199,7 +222,7 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
       <div className="mt-6 flex justify-end">
         <div className="w-full max-w-sm space-y-2 text-sm">
           <div className="flex justify-between text-neu-muted">
-            <span>Total HT</span>
+            <span>{isTvaExempt ? "Total" : "Total HT"}</span>
             <span>{formatMoney(subtotalHT)}</span>
           </div>
           {isTvaExempt ? (
@@ -243,6 +266,12 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
                 <div className="flex justify-between text-neu-muted">
                   <span>TVA ({quote.tvaRate} %)</span>
                   <span>{formatMoney(subscriptionTva)}</span>
+                </div>
+              )}
+              {isTvaExempt && (
+                <div className="flex justify-between text-neu-muted">
+                  <span>TVA</span>
+                  <span className="text-right text-xs">{legalMentions.tvaExempt}</span>
                 </div>
               )}
               <div className="flex justify-between border-t border-neu-text/10 pt-2 font-bold text-neu-text">
@@ -311,6 +340,12 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
           </>
         )}
 
+        {isTvaExempt && (
+          <LegalBlock title="Régime fiscal">
+            <p>{legalMentions.tvaExempt}</p>
+          </LegalBlock>
+        )}
+
         <LegalBlock title="Validité & litiges">
           <p>{legalMentions.validity}</p>
           {!isConsumer && <p className="mt-2">{legalMentions.dispute}</p>}
@@ -342,7 +377,8 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
           <div className="mt-8 h-16 border-b border-neu-text/20" />
         </div>
         <p className="mt-4 text-[10px] text-neu-muted">
-          AKNO — {companyInfo.rcPro}
+          {companyInfo.legalName} — {companyInfo.legalForm}
+          {companyInfo.rcPro ? ` — ${companyInfo.rcPro}` : ""}
         </p>
       </div>
     </article>

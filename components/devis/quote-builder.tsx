@@ -27,7 +27,9 @@ import {
   defaultQuoteNotes,
   defaultQuoteObject,
   defaultQuoteSubscriptionLabel,
+  defaultTvaRate,
   getSubscriptionMonthlyTTC,
+  legalMentions,
   lineTotal,
   quoteTemplates,
   type Quote,
@@ -69,7 +71,7 @@ const initialForm: FormState = {
   items: [createEmptyLineItem()],
   date: today,
   validityDays: 30,
-  tvaRate: 20,
+  tvaRate: defaultTvaRate,
   subscriptionEnabled: false,
   subscriptionLabel: defaultQuoteSubscriptionLabel,
   subscriptionMonthlyPriceHT: 0,
@@ -348,15 +350,10 @@ export function QuoteBuilder({
               </NeuSelect>
             </NeuFieldGroup>
             <NeuFieldGroup>
-              <NeuLabel>TVA</NeuLabel>
-              <NeuSelect
-                value={form.tvaRate}
-                onChange={(e) => patchForm({ tvaRate: Number(e.target.value) })}
-              >
-                <option value={20}>20 %</option>
-                <option value={10}>10 %</option>
-                <option value={0}>0 % (293 B)</option>
-              </NeuSelect>
+              <NeuLabel>Régime fiscal</NeuLabel>
+              <div className="neu-inset flex min-h-[46px] items-center rounded-[1.25rem] px-3 text-xs leading-relaxed text-neu-muted">
+                {legalMentions.tvaExempt}
+              </div>
             </NeuFieldGroup>
             <NeuFieldGroup>
               <NeuLabel>Expire le</NeuLabel>
@@ -513,9 +510,9 @@ export function QuoteBuilder({
                   <p className="sm:col-span-12 text-xs text-neu-muted">
                     Soit{" "}
                     <span className="font-semibold text-neu-accent-2">
-                      {formatMoney(subscriptionTTC)} TTC / mois
+                      {formatMoney(subscriptionTTC)} net / mois
                     </span>{" "}
-                    (TVA {form.tvaRate} %)
+                    ({legalMentions.tvaExempt})
                   </p>
                 )}
               </div>
@@ -526,15 +523,17 @@ export function QuoteBuilder({
           <div className="flex justify-end">
             <div className="w-full max-w-xs space-y-1.5 text-sm">
               <div className="flex justify-between text-neu-muted">
-                <span>Total HT</span>
+                <span>Total</span>
                 <span>{formatMoney(totals.subtotalHT)}</span>
               </div>
               <div className="flex justify-between text-neu-muted">
-                <span>TVA ({form.tvaRate} %)</span>
-                <span>{formatMoney(totals.tvaAmount)}</span>
+                <span>TVA</span>
+                <span className="max-w-[12rem] text-right text-xs">
+                  {legalMentions.tvaExempt}
+                </span>
               </div>
               <div className="flex justify-between border-t border-neu-text/10 pt-2 text-lg font-bold text-neu-text">
-                <span>Total TTC</span>
+                <span>Total net</span>
                 <span className="text-neu-accent-2">
                   {formatMoney(totals.totalTTC)}
                 </span>

@@ -53,10 +53,14 @@ export type QuoteDraft = Omit<Quote, "id" | "number" | "amount">;
 
 export const QUOTES_STORAGE_KEY = AKNO_STORAGE_KEYS.quotes;
 
+/** Micro-entreprise — franchise en base TVA (art. 293 B du CGI) */
+export const defaultTvaRate = 0;
+
 export const companyInfo = {
   name: "AKNO",
-  legalName: "",
-  tagline: "",
+  legalName: "Keryan Bouzerda",
+  legalForm: "Entrepreneur individuel",
+  tagline: "Des expériences digitales sur mesure",
   email: "",
   phone: "",
   website: "",
@@ -64,10 +68,12 @@ export const companyInfo = {
   postalCode: "",
   city: "",
   country: "France",
-  siret: "",
+  siren: "101354413",
+  siret: "10135441300011",
   rcs: "",
   tvaNumber: "",
-  ape: "",
+  ape: "02.01Z",
+  vatExempt: true,
   capital: null as string | null,
   rcPro: "",
   mediator: {
@@ -178,7 +184,7 @@ export const quoteTemplates: Record<
         description:
           "Site template — design personnalisé, mise en ligne et formation",
         quantity: 1,
-        unitPrice: 416.67,
+        unitPrice: 500,
       },
     ],
   },
@@ -235,7 +241,7 @@ export function buildQuoteDraft(input: SimpleQuoteInput): QuoteDraft | null {
       description: item.description.trim(),
       quantity: Math.max(1, item.quantity),
     })),
-    tvaRate: input.tvaRate,
+    tvaRate: input.tvaRate ?? defaultTvaRate,
     status: "brouillon",
     date: input.date,
     validUntil: addDaysToDate(input.date, input.validityDays),
