@@ -1,9 +1,9 @@
 "use client";
 
-import { Download, Eye, Plus, Receipt, X } from "lucide-react";
+import { Eye, Plus, Receipt, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { QuoteDocument } from "@/components/devis/quote-document";
+import { QuotePdfPanel } from "@/components/devis/quote-pdf-panel";
 import { DeleteButton } from "@/components/ui/delete-button";
 import { MonthFilter } from "@/components/ui/month-filter";
 import { PageHeader } from "@/components/ui/page-header";
@@ -12,7 +12,6 @@ import { NeuButton, NeuLinkButton } from "@/components/ui/neu-form";
 import { ModalOverlay } from "@/components/ui/modal-overlay";
 import { NeuCard } from "@/components/ui/neu-card";
 import { formatMoney } from "@/lib/finances";
-import { downloadQuotePdf } from "@/lib/download-quote-pdf";
 import {
   buildMonthOptions,
   formatMonthLabel,
@@ -47,7 +46,6 @@ export default function DevisPage() {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [ready, setReady] = useState(false);
   const [previewQuote, setPreviewQuote] = useState<Quote | null>(null);
-  const [exportingPdf, setExportingPdf] = useState(false);
   const [invoices, setInvoices] = useState(() =>
     typeof window === "undefined" ? [] : loadStoredInvoices(),
   );
@@ -81,16 +79,6 @@ export default function DevisPage() {
 
   const total = filteredQuotes.reduce((sum, quote) => sum + quote.amount, 0);
   const accepted = filteredQuotes.filter((quote) => quote.status === "accepte").length;
-
-  async function handleDownloadPdf() {
-    if (!previewQuote) return;
-    setExportingPdf(true);
-    try {
-      await downloadQuotePdf(`Devis-${previewQuote.number}`);
-    } finally {
-      setExportingPdf(false);
-    }
-  }
 
   function markAsAccepted() {
     if (!previewQuote) return;
@@ -287,51 +275,44 @@ export default function DevisPage() {
         <ModalOverlay
           open={Boolean(previewQuote)}
           onClose={() => setPreviewQuote(null)}
-          panelClassName="max-w-3xl"
+          panelClassName="max-w-4xl"
         >
           <NeuCard className="p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <p className="text-sm font-bold text-neu-text">Devis {previewQuote.number}</p>
-              <div className="flex items-center gap-2">
-                <DeleteButton
-                  label={`le devis ${previewQuote.number}`}
-                  onConfirm={() => deleteQuote(previewQuote.id)}
-                />
-                <button
+            <div className="mb-4 flex justify-end">
+              <button
                 type="button"
                 onClick={() => setPreviewQuote(null)}
                 className="neu-flat flex h-9 w-9 items-center justify-center rounded-xl text-neu-muted"
+                aria-label="Fermer"
               >
                 <X size={18} />
               </button>
-              </div>
             </div>
-            <QuoteDocument quote={previewQuote} />
-            <div className="mt-4 flex flex-wrap justify-end gap-2">
-              {previewQuote.status !== "accepte" && (
-                <NeuButton variant="secondary" onClick={markAsAccepted}>
-                  Marquer accepté
-                </NeuButton>
-              )}
-              {previewQuote.status === "accepte" && (
-                <Link
-                  href="/factures"
-                  className="neu-flat inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-neu-muted hover:text-neu-accent-2"
-                >
-                  <Receipt size={16} />
-                  Facturer
-                </Link>
-              )}
-              <NeuButton
-                variant="secondary"
-                className="gap-2"
-                disabled={exportingPdf}
-                onClick={handleDownloadPdf}
-              >
-                <Download size={16} />
-                {exportingPdf ? "Génération…" : "Enregistrer en PDF"}
-              </NeuButton>
-            </div>
+            <QuotePdfPanel
+              quote={previewQuote}
+              actions={
+                <>
+                  <DeleteButton
+                    label={`le devis ${previewQuote.number}`}
+                    onConfirm={() => deleteQuote(previewQuote.id)}
+                  />
+                  {previewQuote.status !== "accepte" && (
+                    <NeuButton variant="secondary" onClick={markAsAccepted}>
+                      Marquer accepté
+                    </NeuButton>
+                  )}
+                  {previewQuote.status === "accepte" && (
+                    <Link
+                      href="/factures"
+                      className="neu-flat inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-neu-muted hover:text-neu-accent-2"
+                    >
+                      <Receipt size={16} />
+                      Facturer
+                    </Link>
+                  )}
+                </>
+              }
+            />
           </NeuCard>
         </ModalOverlay>
       )}

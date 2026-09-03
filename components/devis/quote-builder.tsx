@@ -1,8 +1,8 @@
 "use client";
 
-import { Download, Eye, Plus, Trash2, X } from "lucide-react";
+import { Eye, Plus, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { QuoteDocument } from "@/components/devis/quote-document";
+import { QuotePdfPanel } from "@/components/devis/quote-pdf-panel";
 import { ModalOverlay } from "@/components/ui/modal-overlay";
 import { NeuCard } from "@/components/ui/neu-card";
 import {
@@ -13,7 +13,6 @@ import {
   NeuSelect,
 } from "@/components/ui/neu-form";
 import { loadStoredClients, type Client } from "@/lib/clients";
-import { downloadQuotePdf } from "@/lib/download-quote-pdf";
 import { formatMoney } from "@/lib/finances";
 import {
   addDaysToDate,
@@ -85,7 +84,6 @@ export function QuoteBuilder({
   const [form, setForm] = useState<FormState>(initialForm);
   const [error, setError] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
-  const [exportingPdf, setExportingPdf] = useState(false);
   const [clientList, setClientList] = useState<Client[]>([]);
 
   useEffect(() => {
@@ -220,17 +218,6 @@ export function QuoteBuilder({
       object: template.object,
       items: template.items,
     });
-  }
-
-  async function handleDownloadPdf() {
-    setExportingPdf(true);
-    try {
-      await downloadQuotePdf(`Devis-${previewQuote.number}`);
-    } catch {
-      setError("Impossible de générer le PDF. Réessayez.");
-    } finally {
-      setExportingPdf(false);
-    }
   }
 
   function handleSave(status: QuoteStatus) {
@@ -606,32 +593,20 @@ export function QuoteBuilder({
       <ModalOverlay
         open={showPreview}
         onClose={() => setShowPreview(false)}
-        panelClassName="max-w-3xl"
+        panelClassName="max-w-4xl"
       >
         <NeuCard className="p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <p className="font-bold text-neu-text">Aperçu du devis</p>
-              <div className="flex gap-2">
-                <NeuButton
-                  type="button"
-                  variant="secondary"
-                  className="!px-3 !py-2 text-xs"
-                  disabled={exportingPdf}
-                  onClick={handleDownloadPdf}
-                >
-                  <Download size={14} />
-                  {exportingPdf ? "Génération…" : "Enregistrer en PDF"}
-                </NeuButton>
-                <button
-                  type="button"
-                  onClick={() => setShowPreview(false)}
-                  className="neu-flat flex h-9 w-9 items-center justify-center rounded-xl"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-            </div>
-          <QuoteDocument quote={previewQuote} />
+          <div className="mb-4 flex justify-end">
+            <button
+              type="button"
+              onClick={() => setShowPreview(false)}
+              className="neu-flat flex h-9 w-9 items-center justify-center rounded-xl"
+              aria-label="Fermer"
+            >
+              <X size={18} />
+            </button>
+          </div>
+          <QuotePdfPanel quote={previewQuote} title="Aperçu du devis" />
         </NeuCard>
       </ModalOverlay>
 

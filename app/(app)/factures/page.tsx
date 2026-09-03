@@ -1,9 +1,10 @@
 "use client";
 
-import { Download, Eye, Plus, Receipt, X } from "lucide-react";
+import { Eye, Plus, Receipt, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { InvoiceDocument } from "@/components/factures/invoice-document";
 import { DeleteButton } from "@/components/ui/delete-button";
+import { PdfDownloadButton } from "@/components/ui/pdf-download-button";
 import { MonthFilter } from "@/components/ui/month-filter";
 import { ModalOverlay } from "@/components/ui/modal-overlay";
 import { NeuCard } from "@/components/ui/neu-card";
@@ -44,7 +45,6 @@ export default function FacturesPage() {
   const [selectedQuoteId, setSelectedQuoteId] = useState("");
   const [selectedKind, setSelectedKind] = useState<InvoiceKind>("acompte");
   const [createError, setCreateError] = useState<string | null>(null);
-  const [exportingPdf, setExportingPdf] = useState(false);
   const [unlockNotice, setUnlockNotice] = useState<string | null>(null);
   const [monthFilter, setMonthFilter] = useState(getCurrentMonthKey);
 
@@ -81,19 +81,6 @@ export default function FacturesPage() {
   const paid = filteredInvoices.filter((invoice) => invoice.status === "payee");
   const overdue = filteredInvoices.filter((invoice) => invoice.status === "en_retard");
   const paidAmount = paid.reduce((sum, invoice) => sum + invoice.amount, 0);
-
-  async function handleDownloadPdf() {
-    if (!previewInvoice) return;
-    setExportingPdf(true);
-    try {
-      await downloadDocumentPdf(
-        `Facture-${previewInvoice.number}`,
-        "invoice-document",
-      );
-    } finally {
-      setExportingPdf(false);
-    }
-  }
 
   function handleCreateInvoice() {
     if (!selectedQuote) {
@@ -357,28 +344,46 @@ export default function FacturesPage() {
         <ModalOverlay
           open={Boolean(previewInvoice)}
           onClose={() => setPreviewInvoice(null)}
-          panelClassName="max-w-3xl"
+          panelClassName="max-w-4xl"
         >
           <NeuCard className="p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <p className="text-sm font-bold text-neu-text">
-                {previewInvoice.number} — {invoiceKindLabels[previewInvoice.kind]}
-              </p>
-              <div className="flex items-center gap-2">
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-bold text-neu-text">
+                  {previewInvoice.number} — {invoiceKindLabels[previewInvoice.kind]}
+                </p>
+                <p className="mt-0.5 text-xs text-neu-muted">Aperçu prêt à l&apos;export — format A4</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
                 <DeleteButton
                   label={`la facture ${previewInvoice.number}`}
                   onConfirm={() => deleteInvoice(previewInvoice.id)}
+                />
+                <PdfDownloadButton
+                  onDownload={() =>
+                    downloadDocumentPdf(
+                      `Facture-${previewInvoice.number}`,
+                      "invoice-document",
+                    )
+                  }
                 />
                 <button
                   type="button"
                   onClick={() => setPreviewInvoice(null)}
                   className="neu-flat flex h-9 w-9 items-center justify-center rounded-xl text-neu-muted"
+                  aria-label="Fermer"
                 >
                   <X size={18} />
                 </button>
               </div>
             </div>
-            <InvoiceDocument invoice={previewInvoice} />
+
+            <div className="akno-pdf-preview-frame overflow-hidden rounded-2xl border border-akno-border bg-white shadow-[0_8px_30px_rgba(10,37,64,0.06)]">
+              <div className="max-h-[min(72vh,900px)] overflow-y-auto overscroll-contain bg-[#f8fafc] p-3 sm:p-5">
+                <InvoiceDocument invoice={previewInvoice} />
+              </div>
+            </div>
+
             {previewInvoice.kind === "solde" && previewInvoice.status !== "payee" && (
               <p className="mt-4 rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-800">
                 Le site reste verrouillé tant que cette facture de solde n&apos;est pas payée.
@@ -405,15 +410,6 @@ export default function FacturesPage() {
                   Encaissement comptabilisé dans Finances et le dashboard.
                 </p>
               )}
-              <NeuButton
-                variant="secondary"
-                className="gap-2"
-                disabled={exportingPdf}
-                onClick={handleDownloadPdf}
-              >
-                <Download size={16} />
-                {exportingPdf ? "Génération…" : "Enregistrer en PDF"}
-              </NeuButton>
             </div>
           </NeuCard>
         </ModalOverlay>

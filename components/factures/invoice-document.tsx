@@ -28,9 +28,37 @@ export function InvoiceDocument({ invoice, className }: InvoiceDocumentProps) {
   return (
     <article
       id="invoice-document"
-      className={cn("bg-white p-1 text-neu-text sm:p-2", className)}
+      className={cn("akno-pdf-document relative bg-white p-4 text-neu-text sm:p-8", className)}
     >
-      <div className="mb-8 flex flex-col justify-between gap-6 border-b border-neu-text/10 pb-6 sm:flex-row sm:items-start">
+      <div className="pdf-avoid-break akno-pdf-block mb-8 flex items-start justify-between gap-6 border-b border-neu-text/10 pb-6">
+        <img
+          src="/logo-akno-plus.png"
+          alt="AKNO"
+          width={140}
+          height={52}
+          className="h-10 w-auto shrink-0 object-contain"
+          crossOrigin="anonymous"
+        />
+        <div className="text-right">
+          <p className="text-xs font-bold uppercase tracking-widest text-neu-accent-2">
+            Facture n° {invoice.number}
+          </p>
+          <p className="mt-1 text-xs font-semibold text-neu-text">
+            {invoiceKindLabels[invoice.kind]}
+          </p>
+          <p className="mt-2 text-xs text-neu-muted">
+            Date d&apos;émission : {formatQuoteDate(invoice.date)}
+          </p>
+          <p className="text-xs text-neu-muted">
+            Échéance : {formatQuoteDate(invoice.dueDate)}
+          </p>
+          <p className="mt-2 text-xs text-neu-muted">
+            Réf. devis : {invoice.quoteNumber}
+          </p>
+        </div>
+      </div>
+
+      <div className="pdf-avoid-break akno-pdf-block mb-8 flex flex-col justify-between gap-6 border-b border-neu-text/10 pb-6 sm:flex-row sm:items-start">
         <div className="max-w-md">
           <p className="text-2xl font-bold tracking-tight">{companyInfo.name}</p>
           <p className="mt-0.5 text-sm font-medium text-neu-text">
@@ -65,26 +93,10 @@ export function InvoiceDocument({ invoice, className }: InvoiceDocumentProps) {
           </div>
         </div>
 
-        <div className="text-left sm:text-right">
-          <p className="text-xs font-bold uppercase tracking-widest text-neu-accent-2">
-            Facture n° {invoice.number}
-          </p>
-          <p className="mt-1 text-xs font-semibold text-neu-text">
-            {invoiceKindLabels[invoice.kind]}
-          </p>
-          <p className="mt-2 text-xs text-neu-muted">
-            Date d&apos;émission : {formatQuoteDate(invoice.date)}
-          </p>
-          <p className="text-xs text-neu-muted">
-            Échéance : {formatQuoteDate(invoice.dueDate)}
-          </p>
-          <p className="mt-2 text-xs text-neu-muted">
-            Réf. devis : {invoice.quoteNumber}
-          </p>
-        </div>
+        <div className="hidden sm:block" />
       </div>
 
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="pdf-avoid-break akno-pdf-block mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="rounded-2xl border border-neu-text/8 bg-neu-text/[0.02] p-4">
           <p className="text-[10px] font-bold uppercase tracking-wider text-neu-muted">
             Prestataire

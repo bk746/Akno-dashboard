@@ -74,10 +74,38 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
   return (
     <article
       id="quote-document"
-      className={cn("bg-white p-1 text-neu-text sm:p-2", className)}
+      className={cn("akno-pdf-document relative bg-white p-4 text-neu-text sm:p-8", className)}
     >
-      {/* En-tête */}
-      <div className="mb-8 flex flex-col justify-between gap-6 border-b border-neu-text/10 pb-6 sm:flex-row sm:items-start">
+      {quote.status === "brouillon" && (
+        <div className="akno-pdf-watermark" aria-hidden="true">
+          BROUILLON
+        </div>
+      )}
+
+      <div className="pdf-avoid-break akno-pdf-block mb-8 flex items-start justify-between gap-6 border-b border-neu-text/10 pb-6">
+        <img
+          src="/logo-akno-plus.png"
+          alt="AKNO"
+          width={140}
+          height={52}
+          className="h-10 w-auto shrink-0 object-contain"
+          crossOrigin="anonymous"
+        />
+        <div className="text-right">
+          <p className="text-xs font-bold uppercase tracking-widest text-neu-accent-2">
+            Devis n° {quote.number || "DEV-XXXX-XXX"}
+          </p>
+          <p className="mt-2 text-xs text-neu-muted">
+            Date d&apos;émission : {formatQuoteDate(quote.date)}
+          </p>
+          <p className="text-xs text-neu-muted">
+            Valable jusqu&apos;au : {formatQuoteDate(quote.validUntil)}
+          </p>
+        </div>
+      </div>
+
+      {/* En-tête prestataire */}
+      <div className="pdf-avoid-break akno-pdf-block mb-8 flex flex-col justify-between gap-6 border-b border-neu-text/10 pb-6 sm:flex-row sm:items-start">
         <div className="max-w-md">
           <p className="text-2xl font-bold tracking-tight">{companyInfo.name}</p>
           <p className="mt-0.5 text-sm font-medium text-neu-text">
@@ -112,24 +140,15 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
           </div>
         </div>
 
-        <div className="text-left sm:text-right">
-          <p className="text-xs font-bold uppercase tracking-widest text-neu-accent-2">
-            Devis n° {quote.number || "DEV-XXXX-XXX"}
-          </p>
-          <p className="mt-2 text-xs text-neu-muted">
-            Date d&apos;émission : {formatQuoteDate(quote.date)}
-          </p>
-          <p className="text-xs text-neu-muted">
-            Valable jusqu&apos;au : {formatQuoteDate(quote.validUntil)}
-          </p>
-          <p className="mt-2 text-[11px] italic text-neu-muted">
+        <div className="text-left sm:max-w-xs sm:text-right">
+          <p className="text-[11px] italic leading-relaxed text-neu-muted">
             {legalMentions.freeQuote}
           </p>
         </div>
       </div>
 
       {/* Émetteur / Client */}
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="pdf-avoid-break akno-pdf-block mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="rounded-2xl border border-neu-text/8 bg-neu-text/[0.02] p-4">
           <p className="text-[10px] font-bold uppercase tracking-wider text-neu-muted">
             Prestataire
@@ -170,7 +189,7 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
 
       {/* Objet */}
       {quote.object && (
-        <div className="mb-6 rounded-2xl border border-neu-accent-2/20 bg-neu-accent-2/5 p-4">
+        <div className="pdf-avoid-break akno-pdf-block mb-6 rounded-2xl border border-neu-accent-2/20 bg-neu-accent-2/5 p-4">
           <p className="text-[10px] font-bold uppercase tracking-wider text-neu-accent-2">
             Objet du devis
           </p>
@@ -179,7 +198,7 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
       )}
 
       {/* Prestations */}
-      <div className="pdf-avoid-break overflow-hidden rounded-2xl border border-neu-text/8">
+      <div className="pdf-avoid-break akno-pdf-block overflow-hidden rounded-2xl border border-neu-text/8">
         <table className="w-full text-sm">
           <thead className="bg-neu-text/[0.04] text-left text-[10px] uppercase tracking-wider text-neu-muted">
             <tr>
@@ -221,7 +240,7 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
       </div>
 
       {/* Totaux */}
-      <div className="mt-6 flex justify-end">
+      <div className="pdf-avoid-break akno-pdf-block mt-6 flex justify-end">
         <div className="w-full max-w-sm space-y-2 text-sm">
           <div className="flex justify-between text-neu-muted">
             <span>{isTvaExempt ? "Total" : "Total HT"}</span>
@@ -355,7 +374,7 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
       </div>
 
       {/* Bon pour accord */}
-      <div className="pdf-avoid-break mt-8 rounded-2xl border-2 border-dashed border-neu-text/15 p-5">
+      <div className="pdf-avoid-break akno-pdf-block mt-8 rounded-2xl border-2 border-dashed border-neu-text/15 p-5">
         <p className="text-[10px] font-bold uppercase tracking-wider text-neu-muted">
           Acceptation du devis
         </p>
