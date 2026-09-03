@@ -61,8 +61,8 @@ export const companyInfo = {
   legalName: "Keryan Bouzerda",
   legalForm: "Entrepreneur individuel",
   tagline: "Des expériences digitales sur mesure",
-  email: "",
-  phone: "",
+  email: "aknoweb.contact@gmail.com",
+  phone: "07 81 99 07 61",
   website: "",
   address: "",
   postalCode: "",
@@ -70,6 +70,7 @@ export const companyInfo = {
   country: "France",
   siren: "101354413",
   siret: "10135441300011",
+  iban: "FR76 2823 3000 0147 5243 7148 512",
   rcs: "",
   tvaNumber: "",
   ape: "02.01Z",
@@ -118,7 +119,12 @@ export const defaultDeliveryDelay =
 export const defaultPaymentTerms = `Acompte de 40 % à la commande (signature du devis).
 Solde de 60 % à la livraison du site.
 Mise en ligne et remise des accès définitifs après encaissement du solde — le site reste verrouillé jusqu'au paiement complet.
-Paiement par virement bancaire sous 30 jours date de facture.`;
+Paiement par virement bancaire sous 30 jours date de facture.
+
+Coordonnées bancaires :
+IBAN : ${companyInfo.iban}
+Titulaire : ${companyInfo.legalName}
+Contact : ${companyInfo.email} · ${companyInfo.phone}`;
 
 export function getDefaultWebsiteQuoteLines(): QuoteLineItem[] {
   const base = Date.now();
@@ -398,4 +404,13 @@ export function getCompanyFullAddress() {
   ].filter(Boolean);
 
   return parts.length > 0 ? parts.join(", ") : "À compléter";
+}
+
+export function getCompanyBankDetails() {
+  return {
+    iban: companyInfo.iban,
+    holder: companyInfo.legalName,
+    email: companyInfo.email,
+    phone: companyInfo.phone,
+  };
 }

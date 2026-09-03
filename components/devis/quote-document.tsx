@@ -106,7 +106,9 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
                 {[companyInfo.email, companyInfo.phone].filter(Boolean).join(" · ")}
               </p>
             )}
-            {companyInfo.website && <p>{companyInfo.website}</p>}
+            {companyInfo.iban && (
+              <p className="font-mono tracking-wide">IBAN : {companyInfo.iban}</p>
+            )}
           </div>
         </div>
 

@@ -59,6 +59,9 @@ export function InvoiceDocument({ invoice, className }: InvoiceDocumentProps) {
                 {[companyInfo.email, companyInfo.phone].filter(Boolean).join(" · ")}
               </p>
             )}
+            {companyInfo.iban && (
+              <p className="font-mono tracking-wide">IBAN : {companyInfo.iban}</p>
+            )}
           </div>
         </div>
 
@@ -204,6 +207,18 @@ export function InvoiceDocument({ invoice, className }: InvoiceDocumentProps) {
               Mise en ligne du site
             </p>
             <p className="mt-1.5">{invoiceLegalMentions.siteUnlock}</p>
+          </div>
+        )}
+        {companyInfo.iban && (
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-neu-muted">
+              Coordonnées bancaires
+            </p>
+            <p className="mt-1.5 font-mono tracking-wide">IBAN : {companyInfo.iban}</p>
+            <p className="mt-1">Titulaire : {companyInfo.legalName}</p>
+            <p className="mt-1">
+              {companyInfo.email} · {companyInfo.phone}
+            </p>
           </div>
         )}
       </div>
