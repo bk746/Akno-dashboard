@@ -91,6 +91,36 @@ html, body { margin: 0; padding: 0; background: #ffffff; }
   display: block;
 }
 
+/* Bloc projet (étape 2) */
+.akno-pdf-project {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.akno-pdf-project-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: #1a1a2e;
+  line-height: 1.35;
+}
+
+.akno-pdf-project-object {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #374151;
+  margin: 0 0 8px;
+}
+
+.akno-pdf-project-intro {
+  font-size: 10.5px;
+  line-height: 1.55;
+  color: #6b7280;
+  margin: 0;
+  white-space: pre-line;
+}
+
 /* Tableau lignes */
 .akno-pdf-lines {
   width: 100%;
@@ -223,12 +253,48 @@ html, body { margin: 0; padding: 0; background: #ffffff; }
 }
 
 .akno-pdf-legal-footer {
-  margin-top: 16px;
-  padding-top: 10px;
-  border-top: 1px solid #e5e7eb;
-  font-size: 9px;
+  margin-top: 10px;
+  font-size: 8px;
+  line-height: 1.4;
   color: #9ca3af;
   text-align: center;
+}
+
+.akno-pdf-legal-block {
+  margin-top: 24px;
+  padding-top: 14px;
+  border-top: 1px solid #e5e7eb;
+  page-break-inside: avoid;
+}
+
+.akno-pdf-legal-heading {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #374151;
+  margin: 0 0 10px;
+}
+
+.akno-pdf-legal-items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.akno-pdf-legal-items li {
+  margin-bottom: 6px;
+  font-size: 8px;
+  line-height: 1.45;
+  color: #6b7280;
+}
+
+.akno-pdf-legal-items li strong {
+  display: block;
+  font-size: 8px;
+  font-weight: 600;
+  color: #4b5563;
+  margin-bottom: 1px;
 }
 
 .akno-pdf-watermark {

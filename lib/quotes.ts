@@ -173,6 +173,68 @@ export const legalMentions = {
     "En cas de litige entre professionnels et à défaut d'accord amiable, compétence exclusive est attribuée aux tribunaux du ressort du siège social du prestataire, sous réserve des dispositions d'ordre public.",
 };
 
+export type QuoteLegalBlock = { label: string; text: string };
+
+export function getQuoteLegalBlocks(
+  quote: Pick<Quote, "clientType" | "tvaRate" | "notes" | "deliveryDelay" | "paymentTerms">,
+): QuoteLegalBlock[] {
+  const blocks: QuoteLegalBlock[] = [
+    { label: "Devis gratuit", text: legalMentions.freeQuote },
+    { label: "Validité", text: legalMentions.validity },
+    { label: "Délai & planning", text: quote.deliveryDelay?.trim() || defaultDeliveryDelay },
+    {
+      label: "Conditions de paiement",
+      text: quote.paymentTerms?.trim() || defaultPaymentTerms,
+    },
+    { label: "Retard de paiement", text: legalMentions.latePayment },
+    { label: "Escompte", text: legalMentions.earlyPayment },
+    { label: "Acceptation du devis", text: legalMentions.acceptance },
+    { label: "Propriété intellectuelle", text: legalMentions.intellectualProperty },
+    { label: "Hébergement & licences", text: legalMentions.hosting },
+    { label: "Retours & révisions", text: legalMentions.revisions },
+    { label: "Obligations du client", text: legalMentions.clientObligations },
+    { label: "Données personnelles (RGPD)", text: legalMentions.rgpd },
+  ];
+
+  if (quote.tvaRate === 0 || companyInfo.vatExempt) {
+    blocks.push({ label: "TVA", text: legalMentions.tvaExempt });
+  }
+
+  if (quote.notes?.trim()) {
+    blocks.push({ label: "Périmètre & exclusions", text: quote.notes.trim() });
+  }
+
+  if (quote.clientType === "consumer") {
+    blocks.push({ label: "Droit de rétractation", text: legalMentions.withdrawal });
+    const mediatorParts = [
+      legalMentions.mediation,
+      companyInfo.mediator.name ? `Médiateur : ${companyInfo.mediator.name}` : null,
+      companyInfo.mediator.url ? companyInfo.mediator.url : null,
+      companyInfo.mediator.email ? companyInfo.mediator.email : null,
+    ].filter(Boolean);
+    blocks.push({ label: "Médiation", text: mediatorParts.join(" · ") });
+  } else {
+    blocks.push({ label: "Litiges", text: legalMentions.dispute });
+  }
+
+  return blocks;
+}
+
+export function getQuoteLegalIdentityLine() {
+  return [
+    companyInfo.legalName,
+    companyInfo.legalForm,
+    `SIRET ${companyInfo.siret}`,
+    `SIREN ${companyInfo.siren}`,
+    `APE ${companyInfo.ape}`,
+    companyInfo.email,
+    companyInfo.phone ? `Tél. ${companyInfo.phone}` : null,
+    `IBAN ${companyInfo.iban}`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
 export const defaultQuoteObject =
   "Conception, design, développement et mise en ligne d'un site internet vitrine sur mesure, responsive et optimisé pour le référencement naturel.";
 

@@ -7,9 +7,10 @@ import {
   formatQuoteDate,
   getCompanyFullAddress,
   getQuoteAmounts,
+  getQuoteLegalBlocks,
+  getQuoteLegalIdentityLine,
   getQuoteSections,
   getSubscriptionMonthlyTTC,
-  legalMentions,
   lineTotal,
   quoteUnitShort,
   type Quote,
@@ -47,6 +48,7 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
   const isTvaExempt = quote.tvaRate === 0;
   const hasAddress = getCompanyFullAddress() !== "À compléter";
   const showPhases = sections.length > 1;
+  const legalBlocks = getQuoteLegalBlocks(quote);
 
   const clientLines = [
     quote.client.company || quote.client.name,
@@ -128,6 +130,21 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
             </tr>
           </tbody>
         </table>
+
+        {/* Projet — titre, objet, contexte */}
+        {(quote.title?.trim() || quote.object?.trim() || quote.introduction?.trim()) && (
+          <div className="akno-pdf-project">
+            {quote.title?.trim() && (
+              <p className="akno-pdf-project-title">{quote.title.trim()}</p>
+            )}
+            {quote.object?.trim() && quote.object.trim() !== quote.title?.trim() && (
+              <p className="akno-pdf-project-object">{quote.object.trim()}</p>
+            )}
+            {quote.introduction?.trim() && (
+              <p className="akno-pdf-project-intro">{quote.introduction.trim()}</p>
+            )}
+          </div>
+        )}
 
         {/* Lignes */}
         <table className="akno-pdf-lines">
@@ -213,13 +230,6 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
                   Bon pour accord — signature du client, date et mention manuscrite ou
                   électronique « Bon pour accord ».
                 </p>
-
-                {isTvaExempt && (
-                  <>
-                    <p className="akno-pdf-foot-label">Régime fiscal</p>
-                    <p className="akno-pdf-foot-text">{legalMentions.tvaExempt}</p>
-                  </>
-                )}
               </td>
 
               <td>
@@ -267,10 +277,18 @@ export function QuoteDocument({ quote, className }: QuoteDocumentProps) {
           </p>
         )}
 
-        <p className="akno-pdf-legal-footer">
-          {companyInfo.legalName} · {companyInfo.legalForm} · SIRET {companyInfo.siret} · APE{" "}
-          {companyInfo.ape}
-        </p>
+        <div className="akno-pdf-legal-block">
+          <p className="akno-pdf-legal-heading">Mentions légales et conditions générales</p>
+          <ul className="akno-pdf-legal-items">
+            {legalBlocks.map((block) => (
+              <li key={block.label}>
+                <strong>{block.label}</strong>
+                {block.text}
+              </li>
+            ))}
+          </ul>
+          <p className="akno-pdf-legal-footer">{getQuoteLegalIdentityLine()}</p>
+        </div>
       </div>
     </article>
   );
