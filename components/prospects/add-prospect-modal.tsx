@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useProspects } from "@/components/prospects/prospects-context";
 import { ModalOverlay } from "@/components/ui/modal-overlay";
 import { NeuCard } from "@/components/ui/neu-card";
 import {
@@ -13,26 +14,24 @@ import {
   NeuTextarea,
 } from "@/components/ui/neu-form";
 import {
+  boardConfig,
   contactStepOptions,
-  createProspect,
   normalizeWebsite,
-  pipelineConfig,
+  prospectBoards,
   type ContactStep,
   type NewProspectInput,
-  type Prospect,
-  type ProspectPipeline,
+  type ProspectBoard,
 } from "@/lib/prospects";
 import { cn } from "@/lib/utils";
 
 type AddProspectModalProps = {
   open: boolean;
   onClose: () => void;
-  prospects: Prospect[];
-  onAdd: (prospect: Prospect) => void;
+  defaultBoard?: ProspectBoard;
 };
 
 type FormState = {
-  pipeline: ProspectPipeline;
+  board: ProspectBoard;
   firstName: string;
   lastName: string;
   company: string;
@@ -43,32 +42,34 @@ type FormState = {
   notes: string;
 };
 
-const initialForm: FormState = {
-  pipeline: "sur-mesure",
-  firstName: "",
-  lastName: "",
-  company: "",
-  website: "",
-  contactStep: "none",
-  email: "",
-  phone: "",
-  notes: "",
-};
+function buildInitialForm(defaultBoard: ProspectBoard): FormState {
+  return {
+    board: defaultBoard,
+    firstName: "",
+    lastName: "",
+    company: "",
+    website: "",
+    contactStep: "none",
+    email: "",
+    phone: "",
+    notes: "",
+  };
+}
 
 export function AddProspectModal({
   open,
   onClose,
-  prospects,
-  onAdd,
+  defaultBoard = "keryan",
 }: AddProspectModalProps) {
-  const [form, setForm] = useState<FormState>(initialForm);
+  const { addProspect } = useProspects();
+  const [form, setForm] = useState<FormState>(() => buildInitialForm(defaultBoard));
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
-    setForm(initialForm);
+    setForm(buildInitialForm(defaultBoard));
     setError(null);
-  }, [open]);
+  }, [open, defaultBoard]);
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -78,13 +79,13 @@ export function AddProspectModal({
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
-    if (!form.firstName.trim() || !form.lastName.trim() || !form.company.trim()) {
-      setError("Prénom, nom et entreprise sont obligatoires.");
+    if (!form.company.trim()) {
+      setError("Le nom de l'entreprise est obligatoire.");
       return;
     }
 
     const input: NewProspectInput = {
-      pipeline: form.pipeline,
+      board: form.board,
       firstName: form.firstName,
       lastName: form.lastName,
       company: form.company,
@@ -95,8 +96,7 @@ export function AddProspectModal({
       notes: form.notes,
     };
 
-    const prospect = createProspect(prospects, input);
-    onAdd(prospect);
+    addProspect(input);
     onClose();
   }
 
@@ -107,7 +107,7 @@ export function AddProspectModal({
           <div>
             <h2 className="text-lg font-bold text-neu-text">Ajouter un prospect</h2>
             <p className="mt-1 text-sm text-neu-muted">
-              Choisissez pour qui et où vous en êtes dans la prospection.
+              Choisissez la page (Keryan, Louise ou Prospection IA).
             </p>
           </div>
           <button
@@ -122,65 +122,31 @@ export function AddProspectModal({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <NeuFieldGroup>
-            <NeuLabel htmlFor="pipeline" required>
-              Pour qui ?
+            <NeuLabel htmlFor="board" required>
+              Page
             </NeuLabel>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {(["sur-mesure", "templates"] as ProspectPipeline[]).map((pipeline) => {
-                const config = pipelineConfig[pipeline];
-                const selected = form.pipeline === pipeline;
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {prospectBoards.map((board) => {
+                const config = boardConfig[board];
+                const selected = form.board === board;
 
                 return (
                   <button
-                    key={pipeline}
+                    key={board}
                     type="button"
-                    onClick={() => updateField("pipeline", pipeline)}
+                    onClick={() => updateField("board", board)}
                     aria-pressed={selected}
                     className={cn(
-                      "rounded-[1.25rem] border-2 p-4 text-left transition-all duration-200",
+                      "rounded-[1.25rem] border-2 p-3 text-left transition-all duration-200",
                       selected
-                        ? "border-neu-accent-2 bg-neu-accent-2/12 shadow-[inset_0_0_0_1px_rgba(59,114,196,0.15)]"
+                        ? board === "ia"
+                          ? "border-violet-500 bg-violet-50"
+                          : "border-neu-accent-2 bg-neu-accent-2/12"
                         : "neu-cell border-transparent hover:border-neu-text/10",
                     )}
                   >
-                    <div className="flex items-center justify-between gap-2">
-                      <p
-                        className={cn(
-                          "text-sm font-bold",
-                          selected ? "text-neu-accent-2" : "text-neu-text",
-                        )}
-                      >
-                        {config.owner}
-                      </p>
-                      <span
-                        className={cn(
-                          "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all",
-                          selected
-                            ? "border-neu-accent-2 bg-neu-accent-2"
-                            : "border-neu-muted/30 bg-transparent",
-                        )}
-                      >
-                        {selected && (
-                          <span className="h-2 w-2 rounded-full bg-white" />
-                        )}
-                      </span>
-                    </div>
-                    <p
-                      className={cn(
-                        "mt-1 text-xs",
-                        selected ? "font-medium text-neu-accent-2/80" : "text-neu-muted",
-                      )}
-                    >
-                      {config.label}
-                    </p>
-                    <p
-                      className={cn(
-                        "mt-0.5 text-[11px]",
-                        selected ? "text-neu-accent-2/70" : "text-neu-muted/80",
-                      )}
-                    >
-                      {config.subtitle}
-                    </p>
+                    <p className="text-sm font-bold text-neu-text">{config.label}</p>
+                    <p className="mt-0.5 text-[11px] text-neu-muted">{config.subtitle}</p>
                   </button>
                 );
               })}
@@ -189,9 +155,7 @@ export function AddProspectModal({
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <NeuFieldGroup>
-              <NeuLabel htmlFor="firstName" required>
-                Prénom
-              </NeuLabel>
+              <NeuLabel htmlFor="firstName">Prénom</NeuLabel>
               <NeuInput
                 id="firstName"
                 value={form.firstName}
@@ -202,9 +166,7 @@ export function AddProspectModal({
             </NeuFieldGroup>
 
             <NeuFieldGroup>
-              <NeuLabel htmlFor="lastName" required>
-                Nom
-              </NeuLabel>
+              <NeuLabel htmlFor="lastName">Nom</NeuLabel>
               <NeuInput
                 id="lastName"
                 value={form.lastName}
@@ -244,9 +206,7 @@ export function AddProspectModal({
             <NeuSelect
               id="contactStep"
               value={form.contactStep}
-              onChange={(e) =>
-                updateField("contactStep", e.target.value as ContactStep)
-              }
+              onChange={(e) => updateField("contactStep", e.target.value as ContactStep)}
             >
               {contactStepOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -292,9 +252,7 @@ export function AddProspectModal({
           </NeuFieldGroup>
 
           {error && (
-            <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">
-              {error}
-            </p>
+            <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
           )}
 
           <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">

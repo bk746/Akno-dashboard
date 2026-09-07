@@ -23,6 +23,11 @@ export function matchesProspectSearch(prospect: Prospect, query: string) {
     prospect.phone,
     prospect.sector,
     prospect.website,
+    prospect.address,
+    prospect.city,
+    prospect.severityNote,
+    prospect.trade,
+    prospect.iaSearchLabel,
     prospect.notes,
   ]);
 }

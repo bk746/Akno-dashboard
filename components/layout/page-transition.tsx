@@ -1,25 +1,52 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { usePathname } from "next/navigation";
+import {
+  pageEnterTransition,
+  pageExitTransition,
+  pageTransition,
+} from "@/lib/motion";
+
+/** Évite de re-animer le shell quand on change d'onglet sous /prospects */
+function transitionKey(pathname: string) {
+  if (pathname.startsWith("/prospects")) return "/prospects";
+  return pathname;
+}
+
+const variants = {
+  initial: pageTransition.initial,
+  animate: {
+    ...pageTransition.animate,
+    transition: pageEnterTransition,
+  },
+  exit: {
+    ...pageTransition.exit,
+    transition: pageExitTransition,
+  },
+};
 
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const key = transitionKey(pathname);
   const reducedMotion = useReducedMotion();
 
   if (reducedMotion) {
-    return <div key={pathname}>{children}</div>;
+    return <div key={key}>{children}</div>;
   }
 
   return (
-    <motion.div
-      key={pathname}
-      initial={{ opacity: 0, y: 4 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-      className="origin-top"
-    >
-      {children}
-    </motion.div>
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.div
+        key={key}
+        variants={variants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        className="origin-top will-change-transform"
+      >
+        {children}
+      </motion.div>
+    </AnimatePresence>
   );
 }
