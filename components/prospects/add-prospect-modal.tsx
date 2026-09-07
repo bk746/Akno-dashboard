@@ -120,7 +120,7 @@ export function AddProspectModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <NeuFieldGroup>
             <NeuLabel htmlFor="board" required>
               Page
@@ -155,7 +155,7 @@ export function AddProspectModal({
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <NeuFieldGroup>
-              <NeuLabel htmlFor="firstName">Prénom</NeuLabel>
+              <NeuLabel htmlFor="firstName">Prénom (optionnel)</NeuLabel>
               <NeuInput
                 id="firstName"
                 value={form.firstName}
@@ -166,7 +166,7 @@ export function AddProspectModal({
             </NeuFieldGroup>
 
             <NeuFieldGroup>
-              <NeuLabel htmlFor="lastName">Nom</NeuLabel>
+              <NeuLabel htmlFor="lastName">Nom (optionnel)</NeuLabel>
               <NeuInput
                 id="lastName"
                 value={form.lastName}
@@ -192,7 +192,6 @@ export function AddProspectModal({
             <NeuLabel htmlFor="website">Lien site web</NeuLabel>
             <NeuInput
               id="website"
-              type="url"
               value={form.website}
               onChange={(e) => updateField("website", e.target.value)}
               placeholder="https://exemple.fr"

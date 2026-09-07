@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useBodyScrollLock } from "@/lib/use-body-scroll-lock";
 import { cn } from "@/lib/utils";
 
@@ -19,7 +20,12 @@ export function ModalOverlay({
   panelClassName,
   backdropClassName,
 }: ModalOverlayProps) {
+  const [mounted, setMounted] = useState(false);
   useBodyScrollLock(open);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -32,11 +38,11 @@ export function ModalOverlay({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center overflow-hidden p-4 sm:items-center"
+      className="fixed inset-0 z-[90] flex items-end justify-center p-4 sm:items-center"
       role="dialog"
       aria-modal="true"
     >
@@ -57,6 +63,7 @@ export function ModalOverlay({
       >
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

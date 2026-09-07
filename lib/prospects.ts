@@ -415,6 +415,10 @@ function nextProspectId(items: Prospect[]) {
   return items.reduce((max, p) => Math.max(max, p.id), 0) + 1;
 }
 
+export function resolveProspectName(firstName: string, lastName: string, company: string) {
+  return `${firstName.trim()} ${lastName.trim()}`.trim() || company.trim();
+}
+
 export function createProspect(items: Prospect[], input: NewProspectInput): Prospect {
   const step = contactStepOptions.find((o) => o.value === input.contactStep);
   const mailsSent = step?.mailsSent ?? 0;
@@ -427,7 +431,7 @@ export function createProspect(items: Prospect[], input: NewProspectInput): Pros
     id: nextProspectId(items),
     firstName: input.firstName.trim(),
     lastName: input.lastName.trim(),
-    name: `${input.firstName.trim()} ${input.lastName.trim()}`.trim() || input.company.trim(),
+    name: resolveProspectName(input.firstName, input.lastName, input.company),
     company: input.company.trim(),
     website: input.website?.trim() || undefined,
     email: input.email?.trim() || "",
@@ -512,9 +516,7 @@ export function updateProspect(prospect: Prospect, patch: Partial<Prospect>): Pr
   const firstName = patch.firstName ?? prospect.firstName;
   const lastName = patch.lastName ?? prospect.lastName;
   const company = patch.company ?? prospect.company;
-  const name =
-    patch.name ??
-    (`${firstName} ${lastName}`.trim() || company);
+  const name = patch.name ?? resolveProspectName(firstName, lastName, company);
 
   return {
     ...prospect,

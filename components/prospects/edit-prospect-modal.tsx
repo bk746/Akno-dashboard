@@ -24,6 +24,7 @@ import {
   getWebsiteScoreLabel,
   normalizeWebsite,
   prospectBoards,
+  resolveProspectName,
   updateProspect,
   type ContactStep,
   type Prospect,
@@ -141,6 +142,7 @@ export function EditProspectModal({
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
       company: form.company.trim(),
+      name: resolveProspectName(form.firstName, form.lastName, form.company),
       website: form.website ? normalizeWebsite(form.website) : undefined,
       email: form.email.trim(),
       phone: form.phone.trim(),
@@ -241,7 +243,7 @@ export function EditProspectModal({
           {followUpGraceDays[3]} après le 3e, puis échec.
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} noValidate className="space-y-5">
           <NeuFieldGroup>
             <NeuLabel required>Assigner à</NeuLabel>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -272,7 +274,7 @@ export function EditProspectModal({
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <NeuFieldGroup>
-              <NeuLabel>Prénom contact</NeuLabel>
+              <NeuLabel>Prénom contact (optionnel)</NeuLabel>
               <NeuInput
                 value={form.firstName}
                 onChange={(e) => patch({ firstName: e.target.value })}
@@ -280,7 +282,7 @@ export function EditProspectModal({
               />
             </NeuFieldGroup>
             <NeuFieldGroup>
-              <NeuLabel>Nom contact</NeuLabel>
+              <NeuLabel>Nom contact (optionnel)</NeuLabel>
               <NeuInput
                 value={form.lastName}
                 onChange={(e) => patch({ lastName: e.target.value })}

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   CalendarDays,
   FileText,
@@ -74,7 +76,12 @@ export function Sidebar({
   onClose?: () => void;
 }) {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
   useBodyScrollLock(Boolean(open));
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -124,30 +131,35 @@ export function Sidebar({
         <div className="flex h-full flex-col overflow-y-auto px-4 py-6">{content}</div>
       </aside>
 
-      <AnimatePresence>
-        {open && (
-          <>
-            <motion.button
-              type="button"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-akno-text/20 backdrop-blur-sm lg:hidden"
-              onClick={onClose}
-              aria-label="Fermer"
-            />
-            <motion.aside
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={appleSpringSnappy}
-              className="fixed left-0 top-0 z-[60] flex h-dvh w-72 flex-col overflow-y-auto border-r border-akno-border bg-akno-surface p-5 lg:hidden"
-            >
-              {content}
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
+      {mounted
+        ? createPortal(
+            <AnimatePresence>
+              {open && (
+                <>
+                  <motion.button
+                    type="button"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[100] bg-akno-text/20 backdrop-blur-sm lg:hidden"
+                    onClick={onClose}
+                    aria-label="Fermer"
+                  />
+                  <motion.aside
+                    initial={{ x: "-100%" }}
+                    animate={{ x: 0 }}
+                    exit={{ x: "-100%" }}
+                    transition={appleSpringSnappy}
+                    className="fixed inset-y-0 left-0 z-[101] flex h-dvh w-[min(18rem,88vw)] max-w-[85vw] flex-col overflow-y-auto border-r border-akno-border bg-akno-surface p-5 pl-[max(1.25rem,env(safe-area-inset-left))] pt-[max(1.25rem,env(safe-area-inset-top))] pb-[max(1.25rem,env(safe-area-inset-bottom))] lg:hidden"
+                  >
+                    {content}
+                  </motion.aside>
+                </>
+              )}
+            </AnimatePresence>,
+            document.body,
+          )
+        : null}
     </>
   );
 }
