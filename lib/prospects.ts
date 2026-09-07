@@ -228,8 +228,8 @@ export function loadStoredProspects(): Prospect[] {
   return Array.isArray(parsed) ? parsed.map(migrateProspect) : [];
 }
 
-export function saveStoredProspects(items: Prospect[]) {
-  writeStorage(PROSPECTS_STORAGE_KEY, items);
+export function saveStoredProspects(items: Prospect[], options?: { immediate?: boolean }) {
+  writeStorage(PROSPECTS_STORAGE_KEY, items, options);
 }
 
 function formatStep(count: number, type: "mail" | "appel") {

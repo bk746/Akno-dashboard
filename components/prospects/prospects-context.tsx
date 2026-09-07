@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import {
+  IA_PROSPECT_PURGE_ON_LOAD,
   IA_PROSPECT_QUEUE_VERSION,
   iaProspectQueue,
 } from "@/lib/ia-prospect-queue";
@@ -24,6 +25,7 @@ import {
 } from "@/lib/prospects";
 
 const IA_QUEUE_STORAGE_KEY = "akno-ia-queue-version";
+const IA_PURGE_DONE_KEY = "akno-ia-purge-done";
 
 type ProspectsContextValue = {
   prospects: Prospect[];
@@ -35,22 +37,44 @@ type ProspectsContextValue = {
 
 const ProspectsContext = createContext<ProspectsContextValue | null>(null);
 
+function mergeIaProspectQueue(items: Prospect[]) {
+  if (iaProspectQueue.length === 0) return { items, imported: [] as Prospect[] };
+
+  const imported = createProspectsFromIa(items, iaProspectQueue);
+  if (imported.length === 0) return { items, imported };
+
+  return { items: [...imported, ...items], imported };
+}
+
 export function ProspectsProvider({ children }: { children: ReactNode }) {
   const [prospects, setProspects] = useState<Prospect[]>([]);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     let items = loadStoredProspects();
-
+    const targetVersion = String(IA_PROSPECT_QUEUE_VERSION);
     const appliedVersion = localStorage.getItem(IA_QUEUE_STORAGE_KEY);
-    if (
-      iaProspectQueue.length > 0 &&
-      appliedVersion !== String(IA_PROSPECT_QUEUE_VERSION)
-    ) {
-      const imported = createProspectsFromIa(items, iaProspectQueue);
-      if (imported.length > 0) {
-        items = [...imported, ...items];
-        localStorage.setItem(IA_QUEUE_STORAGE_KEY, String(IA_PROSPECT_QUEUE_VERSION));
+    const iaCount = items.filter((p) => p.board === "ia").length;
+
+    const versionMismatch = appliedVersion !== targetVersion;
+    const missingIaImport =
+      iaProspectQueue.length > 0 && iaCount === 0 && appliedVersion === targetVersion;
+
+    if (IA_PROSPECT_PURGE_ON_LOAD && !localStorage.getItem(IA_PURGE_DONE_KEY)) {
+      items = items.filter((p) => p.board !== "ia");
+      saveStoredProspects(items, { immediate: true });
+      localStorage.setItem(IA_PURGE_DONE_KEY, "1");
+      localStorage.setItem(IA_QUEUE_STORAGE_KEY, targetVersion);
+    } else if (iaProspectQueue.length > 0 && (versionMismatch || missingIaImport)) {
+      const merged = mergeIaProspectQueue(items);
+      items = merged.items;
+
+      if (merged.imported.length > 0) {
+        saveStoredProspects(items, { immediate: true });
+      }
+
+      if (versionMismatch || merged.imported.length > 0) {
+        localStorage.setItem(IA_QUEUE_STORAGE_KEY, targetVersion);
       }
     }
 
