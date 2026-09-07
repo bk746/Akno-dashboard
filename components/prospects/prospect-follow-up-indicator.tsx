@@ -5,12 +5,20 @@ import {
   type ProspectFollowUpTone,
 } from "@/lib/prospects";
 
-const dotStyles: Record<ProspectFollowUpTone, string> = {
-  yellow: "bg-amber-400 ring-amber-400/30",
-  green: "bg-emerald-500 ring-emerald-500/30",
-  red: "bg-red-500 ring-red-500/30 animate-pulse",
-  won: "bg-emerald-600 ring-emerald-600/30",
-  lost: "bg-slate-400 ring-slate-400/30",
+const dotCoreStyles: Record<ProspectFollowUpTone, string> = {
+  yellow: "bg-amber-400",
+  green: "bg-emerald-500",
+  red: "bg-red-500 animate-pulse",
+  won: "bg-emerald-600",
+  lost: "bg-slate-400",
+};
+
+const haloStyles: Record<ProspectFollowUpTone, string> = {
+  yellow: "bg-amber-400/30",
+  green: "bg-emerald-500/30",
+  red: "bg-red-500/30",
+  won: "bg-emerald-600/30",
+  lost: "bg-slate-400/30",
 };
 
 const labelStyles: Record<ProspectFollowUpTone, string> = {
@@ -35,12 +43,12 @@ export function ProspectFollowUpIndicator({
   return (
     <span className={cn("inline-flex items-center gap-2", className)} title={followUp.hint}>
       <span
-        className={cn(
-          "h-2.5 w-2.5 shrink-0 rounded-full ring-4",
-          dotStyles[followUp.tone],
-        )}
+        className="relative inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center"
         aria-hidden="true"
-      />
+      >
+        <span className={cn("absolute inset-0 rounded-full", haloStyles[followUp.tone])} />
+        <span className={cn("relative h-2.5 w-2.5 rounded-full", dotCoreStyles[followUp.tone])} />
+      </span>
       {showLabel && (
         <span
           className={cn(

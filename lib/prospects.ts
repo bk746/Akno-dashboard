@@ -160,7 +160,7 @@ export const boardConfig: Record<
   },
   louise: {
     label: "Louise",
-    subtitle: "Sites templates · ~500 €",
+    subtitle: "Sites templates",
     href: "/prospects/louise",
     pipeline: "templates",
     showValue: true,
@@ -190,9 +190,9 @@ export const pipelineConfig = {
   },
   templates: {
     label: "Sites templates",
-    subtitle: "500 € — prêt à l'emploi",
+    subtitle: "Prêt à l'emploi",
     owner: "Louise",
-    valueHint: "~500 €",
+    valueHint: "",
     showValue: true,
     accentClass: boardConfig.louise.accentClass,
     badgeClass: boardConfig.louise.badgeClass,
