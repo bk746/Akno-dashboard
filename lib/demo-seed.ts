@@ -65,7 +65,7 @@ export function buildDemoData() {
       email: "contact@maisonlumiere.fr",
       phone: "06 12 34 56 78",
       revenue: 5400,
-      monthlySubscription: 2100,
+      monthlySubscription: 89,
       status: "active",
       initials: "ML",
       color: "#635bff",
@@ -82,7 +82,7 @@ export function buildDemoData() {
       email: "thomas@renard-co.fr",
       phone: "06 98 76 54 32",
       revenue: 4200,
-      monthlySubscription: 1800,
+      monthlySubscription: 59,
       status: "active",
       initials: "RC",
       color: "#5851ea",
@@ -98,7 +98,7 @@ export function buildDemoData() {
       email: "hello@studioverde.io",
       phone: "07 11 22 33 44",
       revenue: 3150,
-      monthlySubscription: 1500,
+      monthlySubscription: 49,
       status: "active",
       initials: "SV",
       color: "#09825d",
@@ -132,7 +132,7 @@ export function buildDemoData() {
       color: "#df1b41",
       sector: "Restauration",
       city: "Lille",
-      monthlySubscription: 1206,
+      monthlySubscription: 39,
       startDate: monthsAgo(5),
     },
     {
@@ -147,7 +147,7 @@ export function buildDemoData() {
       color: "#697386",
       sector: "Juridique",
       city: "Strasbourg",
-      monthlySubscription: 1650,
+      monthlySubscription: 69,
       startDate: monthsAgo(6),
     },
     {
@@ -175,7 +175,7 @@ export function buildDemoData() {
       color: "#5851ea",
       sector: "Sport & bien-être",
       city: "Toulouse",
-      monthlySubscription: 1200,
+      monthlySubscription: 44,
       startDate: monthsAgo(1),
     },
   ];
@@ -496,7 +496,7 @@ export function buildDemoData() {
       dueDate: daysAgo(12),
       paidDate: daysAgo(14),
       object: "Solde refonte identité — Renard & Co",
-      amount: 2200,
+      amount: 3200,
     },
     {
       id: 6,
@@ -512,7 +512,7 @@ export function buildDemoData() {
       dueDate: daysAgo(8),
       paidDate: daysAgo(10),
       object: quotes[2].object,
-      amount: 2000,
+      amount: 3256,
     },
     {
       id: 7,
@@ -528,7 +528,7 @@ export function buildDemoData() {
       dueDate: daysAgo(2),
       paidDate: daysAgo(3),
       object: "Solde plateforme vitrine — Moreau Immobilier",
-      amount: 1800,
+      amount: 3000,
     },
   ];
 
@@ -539,9 +539,7 @@ export function buildDemoData() {
     { id: 15, label: "Déplacement client Lyon", amount: 85, type: "expense", category: "Déplacements", date: monthsAgo(2, 20) },
     { id: 19, label: "Campagne Meta Ads", amount: 200, type: "expense", category: "Marketing", date: monthsAgo(3, 15) },
     { id: 20, label: "Studio Verde — solde", amount: 1890, type: "income", category: "Prestations", date: monthsAgo(1, 22) },
-    { id: 21, label: "Sous-traitance intégration", amount: 400, type: "expense", category: "Freelance", date: daysAgo(18) },
-    { id: 22, label: "Matériel & licences", amount: 400, type: "expense", category: "Outils & logiciels", date: daysAgo(11) },
-    { id: 23, label: "Formation WordPress avancé", amount: 400, type: "expense", category: "Formation", date: daysAgo(5) },
+    { id: 21, label: "Sous-traitance intégration", amount: 400, type: "expense", category: "Freelance", date: daysAgo(11) },
     { id: 6, label: "Vercel Pro", amount: 20, type: "expense", category: "Outils & logiciels", date: daysFromNow(10), frequency: "recurring" },
     { id: 7, label: "Figma", amount: 15, type: "expense", category: "Outils & logiciels", date: daysFromNow(10), frequency: "recurring" },
     { id: 8, label: "Google Workspace", amount: 12, type: "expense", category: "Outils & logiciels", date: daysFromNow(10), frequency: "recurring" },
@@ -551,10 +549,10 @@ export function buildDemoData() {
   ];
 
   const goals: Goal[] = [
-    { id: 1, label: "Chiffre d'affaires", current: 6000, target: 12000, unit: "€", period: "month" },
+    { id: 1, label: "Chiffre d'affaires", current: 9456, target: 12000, unit: "€", period: "month" },
     { id: 2, label: "Nouveaux clients", current: 3, target: 5, unit: "", period: "month" },
     { id: 3, label: "Devis signés", current: 4, target: 6, unit: "", period: "month" },
-    { id: 4, label: "MRR abonnements", current: 9456, target: 12000, unit: "€", period: "month" },
+    { id: 4, label: "MRR abonnements", current: 349, target: 600, unit: "€", period: "month" },
     { id: 5, label: "Prospects contactés", current: 12, target: 20, unit: "", period: "week" },
     { id: 6, label: "CA annuel", current: 68400, target: 120000, unit: "€", period: "year" },
   ];
@@ -779,12 +777,13 @@ export function buildDemoData() {
   return { clients, prospects, quotes, invoices, transactions, goals, projects, planner };
 }
 
-const SEPTEMBER_2026_FINANCE_PATCH_KEY = "akno-sept-2026-finance-v1";
+const SEPTEMBER_2026_FINANCE_PATCH_KEY = "akno-sept-2026-finance-v2";
 
-/** Met à jour clients, factures, finances et objectifs (sept. ~6 000 €, MRR 9 456 €, 3×400 € dépenses) sans toucher aux prospects. */
+/** Met à jour clients, factures, finances et objectifs (sept. 9 456 € encaissés, MRR 349 €, 400 € dépenses) sans toucher aux prospects. */
 export function applySeptember2026FinanceDemoPatch() {
   if (typeof window === "undefined") return false;
   if (localStorage.getItem(SEPTEMBER_2026_FINANCE_PATCH_KEY)) return false;
+  localStorage.removeItem("akno-sept-2026-finance-v1");
 
   const demo = buildDemoData();
   saveStoredClients(demo.clients);
