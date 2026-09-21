@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect } from "react";
-import { clearAllAppData } from "@/lib/demo-seed";
+import { applySeptember2026FinanceDemoPatch, clearAllAppData } from "@/lib/demo-seed";
 import { useDataSyncOptional } from "@/context/data-sync-context";
 import { flushAllPendingWrites } from "@/lib/persistence";
 
@@ -32,6 +32,11 @@ export function AknoAppProvider({ children }: { children: React.ReactNode }) {
     void clearAllAppData().then(() => {
       localStorage.setItem(RESET_MIGRATION_KEY, "1");
     });
+  }, [sync?.ready]);
+
+  useEffect(() => {
+    if (sync && !sync.ready) return;
+    applySeptember2026FinanceDemoPatch();
   }, [sync?.ready]);
 
   return children;

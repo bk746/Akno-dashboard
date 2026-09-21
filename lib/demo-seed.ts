@@ -65,7 +65,7 @@ export function buildDemoData() {
       email: "contact@maisonlumiere.fr",
       phone: "06 12 34 56 78",
       revenue: 5400,
-      monthlySubscription: 89,
+      monthlySubscription: 2100,
       status: "active",
       initials: "ML",
       color: "#635bff",
@@ -82,7 +82,7 @@ export function buildDemoData() {
       email: "thomas@renard-co.fr",
       phone: "06 98 76 54 32",
       revenue: 4200,
-      monthlySubscription: 59,
+      monthlySubscription: 1800,
       status: "active",
       initials: "RC",
       color: "#5851ea",
@@ -98,7 +98,7 @@ export function buildDemoData() {
       email: "hello@studioverde.io",
       phone: "07 11 22 33 44",
       revenue: 3150,
-      monthlySubscription: 49,
+      monthlySubscription: 1500,
       status: "active",
       initials: "SV",
       color: "#09825d",
@@ -132,7 +132,7 @@ export function buildDemoData() {
       color: "#df1b41",
       sector: "Restauration",
       city: "Lille",
-      monthlySubscription: 39,
+      monthlySubscription: 1206,
       startDate: monthsAgo(5),
     },
     {
@@ -147,7 +147,7 @@ export function buildDemoData() {
       color: "#697386",
       sector: "Juridique",
       city: "Strasbourg",
-      monthlySubscription: 99,
+      monthlySubscription: 1650,
       startDate: monthsAgo(6),
     },
     {
@@ -175,7 +175,7 @@ export function buildDemoData() {
       color: "#5851ea",
       sector: "Sport & bien-être",
       city: "Toulouse",
-      monthlySubscription: 29,
+      monthlySubscription: 1200,
       startDate: monthsAgo(1),
     },
   ];
@@ -461,9 +461,9 @@ export function buildDemoData() {
       items: quotes[1].items,
       tvaRate: 0,
       status: "payee",
-      date: daysAgo(20),
-      dueDate: daysAgo(5),
-      paidDate: daysAgo(4),
+      date: monthsAgo(1, 22),
+      dueDate: monthsAgo(1, 10),
+      paidDate: monthsAgo(1, 8),
       object: quotes[1].object,
       amount: 1680,
     },
@@ -482,36 +482,79 @@ export function buildDemoData() {
       object: quotes[4].object,
       amount: 720,
     },
+    {
+      id: 5,
+      number: "FAC-2026-005",
+      kind: "solde",
+      quoteId: 2,
+      quoteNumber: "DEV-2026-002",
+      client: quotes[1].client,
+      items: quotes[1].items,
+      tvaRate: 0,
+      status: "payee",
+      date: daysAgo(17),
+      dueDate: daysAgo(12),
+      paidDate: daysAgo(14),
+      object: "Solde refonte identité — Renard & Co",
+      amount: 2200,
+    },
+    {
+      id: 6,
+      number: "FAC-2026-006",
+      kind: "acompte",
+      quoteId: 3,
+      quoteNumber: "DEV-2026-003",
+      client: quotes[2].client,
+      items: quotes[2].items,
+      tvaRate: 0,
+      status: "payee",
+      date: daysAgo(12),
+      dueDate: daysAgo(8),
+      paidDate: daysAgo(10),
+      object: quotes[2].object,
+      amount: 2000,
+    },
+    {
+      id: 7,
+      number: "FAC-2026-007",
+      kind: "solde",
+      quoteId: 3,
+      quoteNumber: "DEV-2026-003",
+      client: quotes[2].client,
+      items: quotes[2].items,
+      tvaRate: 0,
+      status: "payee",
+      date: daysAgo(5),
+      dueDate: daysAgo(2),
+      paidDate: daysAgo(3),
+      object: "Solde plateforme vitrine — Moreau Immobilier",
+      amount: 1800,
+    },
   ];
 
   const transactions: Transaction[] = [
-    { id: 1, label: "Solde — Maison Lumière", amount: 3240, type: "income", category: "Prestations", date: monthsAgo(1, 3), source: "invoice", sourceId: 2 },
-    { id: 2, label: "Acompte — Renard & Co", amount: 1680, type: "income", category: "Prestations", date: daysAgo(4), source: "invoice", sourceId: 3 },
-    { id: 3, label: "Abonnements clients (MRR)", amount: 1287, type: "income", category: "Récurrent", date: daysAgo(2), frequency: "recurring" },
-    { id: 4, label: "Studio Verde — acompte", amount: 1260, type: "income", category: "Prestations", date: daysAgo(10) },
-    { id: 5, label: "Petit Avocats — maintenance", amount: 890, type: "income", category: "Récurrent", date: daysAgo(1), frequency: "recurring" },
-    { id: 6, label: "Vercel Pro", amount: 20, type: "expense", category: "Outils & logiciels", date: daysAgo(1), frequency: "recurring" },
-    { id: 7, label: "Figma", amount: 15, type: "expense", category: "Outils & logiciels", date: daysAgo(2), frequency: "recurring" },
-    { id: 8, label: "Google Workspace", amount: 12, type: "expense", category: "Outils & logiciels", date: daysAgo(3), frequency: "recurring" },
-    { id: 9, label: "Publicité LinkedIn", amount: 150, type: "expense", category: "Marketing", date: daysAgo(5) },
-    { id: 10, label: "Freelance intégration", amount: 450, type: "expense", category: "Freelance", date: daysAgo(7) },
-    { id: 11, label: "Acompte — Maison Lumière", amount: 2160, type: "income", category: "Prestations", date: monthsAgo(2, 6), source: "invoice", sourceId: 1 },
+    { id: 4, label: "Studio Verde — acompte", amount: 1260, type: "income", category: "Prestations", date: monthsAgo(1, 18) },
     { id: 12, label: "La Table d'Émilie — site", amount: 2900, type: "income", category: "Prestations", date: monthsAgo(3, 8) },
     { id: 13, label: "Petit Avocats — refonte", amount: 7500, type: "income", category: "Prestations", date: monthsAgo(4, 14) },
-    { id: 14, label: "Hébergement OVH", amount: 29, type: "expense", category: "Hébergement", date: monthsAgo(1, 1), frequency: "recurring" },
     { id: 15, label: "Déplacement client Lyon", amount: 85, type: "expense", category: "Déplacements", date: monthsAgo(2, 20) },
-    { id: 16, label: "Comptable", amount: 120, type: "expense", category: "Administratif", date: monthsAgo(1, 10), frequency: "recurring" },
-    { id: 17, label: "Renard & Co — solde", amount: 2520, type: "income", category: "Prestations", date: monthsAgo(0, 8) },
-    { id: 18, label: "Notion + outils", amount: 35, type: "expense", category: "Outils & logiciels", date: monthsAgo(2, 2), frequency: "recurring" },
     { id: 19, label: "Campagne Meta Ads", amount: 200, type: "expense", category: "Marketing", date: monthsAgo(3, 15) },
     { id: 20, label: "Studio Verde — solde", amount: 1890, type: "income", category: "Prestations", date: monthsAgo(1, 22) },
+    { id: 21, label: "Sous-traitance intégration", amount: 400, type: "expense", category: "Freelance", date: daysAgo(18) },
+    { id: 22, label: "Matériel & licences", amount: 400, type: "expense", category: "Outils & logiciels", date: daysAgo(11) },
+    { id: 23, label: "Formation WordPress avancé", amount: 400, type: "expense", category: "Formation", date: daysAgo(5) },
+    { id: 6, label: "Vercel Pro", amount: 20, type: "expense", category: "Outils & logiciels", date: daysFromNow(10), frequency: "recurring" },
+    { id: 7, label: "Figma", amount: 15, type: "expense", category: "Outils & logiciels", date: daysFromNow(10), frequency: "recurring" },
+    { id: 8, label: "Google Workspace", amount: 12, type: "expense", category: "Outils & logiciels", date: daysFromNow(10), frequency: "recurring" },
+    { id: 14, label: "Hébergement OVH", amount: 29, type: "expense", category: "Hébergement", date: daysFromNow(10), frequency: "recurring" },
+    { id: 16, label: "Comptable", amount: 120, type: "expense", category: "Administratif", date: daysFromNow(10), frequency: "recurring" },
+    { id: 18, label: "Notion + outils", amount: 35, type: "expense", category: "Outils & logiciels", date: daysFromNow(10), frequency: "recurring" },
   ];
 
   const goals: Goal[] = [
-    { id: 1, label: "Chiffre d'affaires", current: 12450, target: 18000, unit: "€", period: "month" },
+    { id: 1, label: "Chiffre d'affaires", current: 6000, target: 12000, unit: "€", period: "month" },
     { id: 2, label: "Nouveaux clients", current: 3, target: 5, unit: "", period: "month" },
     { id: 3, label: "Devis signés", current: 4, target: 6, unit: "", period: "month" },
-    { id: 4, label: "MRR abonnements", current: 1287, target: 2000, unit: "€", period: "month" },
+    { id: 4, label: "MRR abonnements", current: 9456, target: 12000, unit: "€", period: "month" },
     { id: 5, label: "Prospects contactés", current: 12, target: 20, unit: "", period: "week" },
     { id: 6, label: "CA annuel", current: 68400, target: 120000, unit: "€", period: "year" },
   ];
@@ -734,6 +777,24 @@ export function buildDemoData() {
   };
 
   return { clients, prospects, quotes, invoices, transactions, goals, projects, planner };
+}
+
+const SEPTEMBER_2026_FINANCE_PATCH_KEY = "akno-sept-2026-finance-v1";
+
+/** Met à jour clients, factures, finances et objectifs (sept. ~6 000 €, MRR 9 456 €, 3×400 € dépenses) sans toucher aux prospects. */
+export function applySeptember2026FinanceDemoPatch() {
+  if (typeof window === "undefined") return false;
+  if (localStorage.getItem(SEPTEMBER_2026_FINANCE_PATCH_KEY)) return false;
+
+  const demo = buildDemoData();
+  saveStoredClients(demo.clients);
+  saveStoredInvoices(demo.invoices);
+  saveStoredTransactions(demo.transactions);
+  saveStoredGoals(demo.goals);
+
+  localStorage.setItem(SEPTEMBER_2026_FINANCE_PATCH_KEY, "1");
+  window.dispatchEvent(new CustomEvent("akno:backup-imported"));
+  return true;
 }
 
 export function seedDemoData(options?: { replace?: boolean }) {
